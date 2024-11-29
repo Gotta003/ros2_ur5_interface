@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<robot name="tavolo" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Static property -->
+  <link name="link">
+    <!-- Base collision -->
+    <collision name="base">
+      <origin xyz="0.5 0.4 0.85" rpy="0 0 0" />
+      <geometry>
+        <box size="1 0.8 0.04" />
+      </geometry>
+    </collision>
+
+    <!-- Box collision -->
+    <collision name="box">
+      <origin xyz="0.5 0.08 0.95" rpy="0 0 0" />
+      <geometry>
+        <box size="1 0.15 0.15" />
+      </geometry>
+    </collision>
+
+    <!-- Back collision -->
+    <collision name="back">
+      <origin xyz="0.5 -0.02 1.35" rpy="1.57 0 0" />
+      <geometry>
+        <box size="1 1.0 0.04" />
+      </geometry>
+    </collision>
+
+    <!-- Visual -->
+    <visual name="visual">
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://ur5_simulation/models/mesh/tavolo.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="grey_material">
+        <color rgba="0.5 0.5 0.5 1.0"/> <!-- Grey color, fully opaque -->
+      </material>
+    </visual>
+  </link>
+
+</robot>
