@@ -1,9 +1,8 @@
 Here’s an updated version of the **README** reflecting your updated purpose:
 
-```markdown
 # UR5 Simulation Repository
 
-This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their course projects. It complements the **pla10/ur5_simulation** Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
+This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
@@ -23,13 +22,15 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ```plaintext
 .
 ├── launch/
-│   ├── ur5_simulation.launch.py   # Launch file to interact with simulated and real UR5 robot
+│   ├── sim.launch.py                     # Launch file to interact with simulated and real UR5 robot
 ├── src/
-│   ├── trajectory_node.cpp        # Example node for trajectory publication
+│   ├── publish_trajectory_node.cpp       # Example node for trajectory publication
+├── rviz/
+│   ├── ur5.rviz                          # RViz configuration file
 ├── bash_scripts/
-│   ├── run_ursim.sh               # Starts the URSim simulator container
-│   ├── run_ros2_sim.sh            # Starts the pla10/ur5_simulation container
-├── README.md                      # Project overview and instructions
+│   ├── ur5sim.sh                         # Starts the URSim simulator container
+│   ├── ros2.sh                           # Starts the pla10/ur5_simulation container
+├── README.md                             # Project overview and instructions
 ```
 
 ---
@@ -41,7 +42,6 @@ The resources in this repository were developed for the **"Fundamentals of Robot
   docker network create --subnet=192.168.56.0/24 ursim_net
   ```
 
----
 
 ## How to Use
 ### 1. Start the UR5 Simulator
