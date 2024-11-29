@@ -5,8 +5,6 @@ This repo is included in the home/ros2_ws of the [**pla10/ros2_ur5_interface**](
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
-<img src="https://gyazo.com/ca4a65bce9e2ac0e5217edfc423d5fa9/raw" alt="UR5 Simulation" width="800">
-
 ---
 
 ## Features
@@ -52,18 +50,24 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ### 1. Start the UR5 Simulator
 Run the URSim container using the provided bash script:
 ```bash
-bash bash_scripts/run_ursim.sh
+bash bash_scripts/ur5sim.sh
 ```
 This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-series) Docker container for UR5 simulation. Access the simulator via your browser at [http://localhost:6080](http://localhost:6080).
+
+<img src="https://gyazo.com/7e2514442ef1753eb8b20e2b674056fc/raw" alt="UR5 Simulation" width="800">
+
+To prepare the robot to work with ROS2 you need to go to the program tab and add the URCaps > External Control.
 
 ---
 
 ### 2. Start the ROS 2 Simulation Environment
 Run the ROS 2 container using the provided bash script:
 ```bash
-bash bash_scripts/run_ros2_sim.sh
+bash bash_scripts/ros2.sh
 ```
 This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
+
+<img src="https://gyazo.com/ca4a65bce9e2ac0e5217edfc423d5fa9/raw" alt="UR5 Simulation" width="800">
 
 ---
 
