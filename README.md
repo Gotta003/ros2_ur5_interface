@@ -56,6 +56,8 @@ This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-se
 
 <img src="https://gyazo.com/7e2514442ef1753eb8b20e2b674056fc/raw" alt="UR5 Simulation" width="800">
 
+To prepare the robot to work with ROS2 you need to go to the program tab and add the URCaps > External Control.
+
 ---
 
 ### 2. Start the ROS 2 Simulation Environment
