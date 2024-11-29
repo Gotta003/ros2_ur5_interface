@@ -1,5 +1,3 @@
-Here’s an updated version of the **README** reflecting your updated purpose:
-
 # UR5 Simulation Repository
 
 This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
