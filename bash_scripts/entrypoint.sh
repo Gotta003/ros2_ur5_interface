@@ -1,9 +1,5 @@
 #!/bin/bash
 
-git clone https://github.com/pla10/ros2_ur5_interface.git /home/ubuntu/ros2_ws/src/ros2_ur5_interface
-cd /home/ubuntu/ros2_ws
-colcon build --symlink-install
-
 # Create User
 USER=${USER:-root}
 HOME=/root
@@ -86,6 +82,13 @@ chown $USER:$USER $BASHRC_PATH
 mkdir -p $HOME/.ros
 cp -r /root/.ros/rosdep $HOME/.ros/rosdep
 chown -R $USER:$USER $HOME/.ros
+
+# Install ros2_ur5_interface
+source /opt/ros/$ROS_DISTRO/setup.bash
+git clone https://github.com/pla10/ros2_ur5_interface.git $HOME/ros2_ws/src/ros2_ur5_interface
+cd $HOME/ros2_ws
+colcon build --symlink-install
+chown -R $USER:$USER $HOME/ros2_ws
 
 # Add terminator shortcut
 mkdir -p $HOME/Desktop
