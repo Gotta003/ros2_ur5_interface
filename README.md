@@ -91,11 +91,3 @@ Students and contributors are welcome to improve this repository by adding new n
 
 ## License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-```
-
-### Adjustments:
-- Changed focus to providing **auxiliary resources** for the course and project development.
-- Highlighted how the repository supports simulation visualization and node creation.
-- Updated the contributions section to encourage students to expand the repository's content. 
-
-Let me know if more adjustments are needed!
