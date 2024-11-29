@@ -31,7 +31,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ├── rviz/
 │   ├── ur5.rviz                          # RViz configuration file
 ├── bash_scripts/
-│   ├── ur5sim.sh                         # Starts the URSim simulator container
+│   ├── ur5.sh                         # Starts the URSim simulator container
 │   ├── ros2.sh                           # Starts the pla10/ros2_ur5_interface container
 ├── README.md                             # Project overview and instructions
 ```
@@ -50,7 +50,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ### 1. Start the UR5 Simulator
 Run the URSim container using the provided bash script:
 ```bash
-bash bash_scripts/ur5sim.sh
+bash bash_scripts/ur5.sh
 ```
 This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-series) Docker container for UR5 simulation. Access the simulator via your browser at [http://localhost:6080](http://localhost:6080).
 
