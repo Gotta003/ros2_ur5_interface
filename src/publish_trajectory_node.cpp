@@ -34,7 +34,8 @@ private:
 
         // Create a joint trajectory point
         trajectory_msgs::msg::JointTrajectoryPoint point;
-        point.positions = {0.17 + increment_, -1.41, 1.84, -0.43, 0.17, -0.38};  // Example positions for each joint
+        point.positions = {-1.60 + increment_, -1.72, -2.20, -0.81, 1.60, -0.03};  // Example positions for each joint
+
 
         increment_ += 0.1;  // Increment the position for the next trajectory
 
