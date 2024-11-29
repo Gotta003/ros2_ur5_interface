@@ -1,7 +1,7 @@
 # UR5 Simulation Repository
 
-This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
-This repo is included in the home/ros2_ws of the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image.
+This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
+This repo is included in the home/ros2_ws of the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
@@ -34,7 +34,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 │   ├── ur5.rviz                          # RViz configuration file
 ├── bash_scripts/
 │   ├── ur5sim.sh                         # Starts the URSim simulator container
-│   ├── ros2.sh                           # Starts the pla10/ur5_simulation container
+│   ├── ros2.sh                           # Starts the pla10/ros2_ur5_interface container
 ├── README.md                             # Project overview and instructions
 ```
 
@@ -63,7 +63,7 @@ Run the ROS 2 container using the provided bash script:
 ```bash
 bash bash_scripts/run_ros2_sim.sh
 ```
-This starts the [pla10/ur5_simulation](https://hub.docker.com/r/pla10/ur5_simulation) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
+This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
 
 ---
 
@@ -79,7 +79,7 @@ This starts the [pla10/ur5_simulation](https://hub.docker.com/r/pla10/ur5_simula
   ```
 - Launch the simulation or control nodes using the provided launch files, e.g.:
   ```bash
-  ros2 launch launch/ur5_simulation.launch.py
+  ros2 launch launch/ros2_ur5_interface.launch.py
   ```
 
 ---

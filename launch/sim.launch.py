@@ -15,12 +15,12 @@ def generate_launch_description():
     )
 
     # Retrieve the URDF file path
-    urdf_file = os.path.join(get_package_share_directory('ur5_simulation'), 'models', 'model.urdf')
+    urdf_file = os.path.join(get_package_share_directory('ros2_ur5_interface'), 'models', 'model.urdf')
     with open(urdf_file, 'r') as infp:
         robot_desc = infp.read()
 
     # Retrieve the RViz config file path
-    rviz_config_file = os.path.join(get_package_share_directory('ur5_simulation'), 'rviz', 'ur5.rviz')
+    rviz_config_file = os.path.join(get_package_share_directory('ros2_ur5_interface'), 'rviz', 'ur5.rviz')
 
     # Robot state publisher node
     robot_state_publisher_node = Node(
