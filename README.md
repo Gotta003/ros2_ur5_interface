@@ -50,7 +50,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ### 1. Start the UR5 Simulator
 Run the URSim container using the provided bash script:
 ```bash
-bash bash_scripts/run_ursim.sh
+bash bash_scripts/ur5sim.sh
 ```
 This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-series) Docker container for UR5 simulation. Access the simulator via your browser at [http://localhost:6080](http://localhost:6080).
 
@@ -61,7 +61,7 @@ This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-se
 ### 2. Start the ROS 2 Simulation Environment
 Run the ROS 2 container using the provided bash script:
 ```bash
-bash bash_scripts/run_ros2_sim.sh
+bash bash_scripts/ros2.sh
 ```
 This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
 
