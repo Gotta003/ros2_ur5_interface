@@ -3,6 +3,7 @@ Here’s an updated version of the **README** reflecting your updated purpose:
 # UR5 Simulation Repository
 
 This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
+This repo is included in the home/ros2_ws of the [**pla10/ur5_simulation**](https://hub.docker.com/r/pla10/ur5_simulation) Docker image.
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
@@ -25,6 +26,12 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 │   ├── sim.launch.py                     # Launch file to interact with simulated and real UR5 robot
 ├── src/
 │   ├── publish_trajectory_node.cpp       # Example node for trajectory publication
+├── models/
+│   ├── model.urdf                        # URDF file that defines the desk where the UR5 is mounted
+│   ├── model.sdf                         # SDF file that defines the desk where the UR5 is mounted
+│   ├── model.config                      # Config file auxiliary to the SDF file
+│   ├── mesh
+│   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
 ├── rviz/
 │   ├── ur5.rviz                          # RViz configuration file
 ├── bash_scripts/
