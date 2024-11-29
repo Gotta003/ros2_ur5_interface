@@ -119,7 +119,7 @@
 			<visual name="visual">
 				<geometry>
 					<mesh>
-						<uri>model://tavolo/mesh/tavolo.stl</uri>
+						<uri>model://tavolo/mesh/desk.stl</uri>
                                                 <scale>0.001 0.001 0.001</scale>
 					</mesh>
 				</geometry>
