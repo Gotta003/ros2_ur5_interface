@@ -48,6 +48,7 @@ def generate_launch_description():
             'robot_ip': LaunchConfiguration("robot_ip"),
             'initial_joint_controller': 'scaled_joint_trajectory_controller',
             'activate_joint_controller': 'true',
+            'controllers_file': [get_package_share_directory('ros2_ur5_interface'), '/config/ur_controllers.yaml'],
             'launch_rviz': 'false',
         }.items(),
     )
