@@ -46,7 +46,7 @@ def generate_launch_description():
         launch_arguments={
             'ur_type': 'ur5e',
             'robot_ip': LaunchConfiguration("robot_ip"),
-            'initial_joint_controller': 'scaled_vel_joint_traj_controller',
+            'initial_joint_controller': 'scaled_joint_trajectory_controller',
             'activate_joint_controller': 'true',
             'launch_rviz': 'false',
         }.items(),
