@@ -1,10 +1,11 @@
 import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration
 from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import AppendEnvironmentVariable, ExecuteProcess, TimerAction
 
 def generate_launch_description():
     # Declare the robot IP address argument
@@ -53,6 +54,73 @@ def generate_launch_description():
         }.items(),
     )
 
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([get_package_share_directory('ros_gz_sim'), '/launch/gz_sim.launch.py']),
+        launch_arguments={'gz_args': 'empty.sdf'}.items(),
+        # launch_arguments={'gz_args': ['-r -s -v4 ', 'empty.sdf'], 'on_exit_shutdown': 'true'}.items()
+    )
+
+    set_env_vars = AppendEnvironmentVariable(
+        'GZ_SIM_RESOURCE_PATH',
+        os.path.join(get_package_share_directory('ros2_ur5_interface'), 'models') +
+        ':' +
+        os.path.dirname(get_package_share_directory('ur_description'))
+    )
+    
+    spawn_ur5 =  TimerAction(period=4.0, actions=[
+        Node(
+            package='ros_gz_sim',
+            executable='create',
+            arguments=[
+                '-name', "desk",
+                '-file', [get_package_share_directory('ros2_ur5_interface'), '/models/model.sdf'],
+                '-x', '0.0',
+                '-y', '0.0',
+                '-z', '0.0',
+            ],
+            output='screen',
+        ),
+        Node(
+            package='ros_gz_sim',
+            executable='create',
+            arguments=[
+                '-name', "ur5",
+                '-topic', "/robot_description",
+                '-x', '0.50',
+                '-y', '0.34',
+                '-z', '1.79',
+                '-R', '0.00',
+                '-P', '3.1415',
+                '-Y', '0.00',
+            ],
+            output='screen',
+        )
+    ])
+
+    bridge_params = os.path.join(
+        get_package_share_directory('ros2_ur5_interface'),
+        'params',
+        'ur5_bridge.yaml'
+    )
+
+    gazebo_ros_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '--ros-args',
+            '-p',
+            f'config_file:={bridge_params}',
+        ],
+        output='screen',
+    )
+
+    gazebo_ros_image_bridge = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=['/camera/image_raw'],
+        output='screen',
+    )
+
     # RViz2 node +
     # call service /dashboard_client/play to start the simulation
     pendant_play_rviz2 = TimerAction(period=4.0, actions=[
@@ -72,8 +140,13 @@ def generate_launch_description():
     # Return the LaunchDescription
     return LaunchDescription([
         declare_ip_arg,
+        set_env_vars,
         robot_state_publisher_node,
         fixed_map_broadcast,
         base_launch,
+        gazebo_launch,
+        spawn_ur5,
+        gazebo_ros_bridge,
+        gazebo_ros_image_bridge,
         pendant_play_rviz2,
     ])
