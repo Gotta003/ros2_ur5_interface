@@ -11,6 +11,8 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(control_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 
 
 add_executable(publish_trajectory_node src/publish_trajectory_node.cpp)
@@ -19,6 +21,8 @@ ament_target_dependencies(publish_trajectory_node
   rclcpp
   trajectory_msgs
   sensor_msgs
+  control_msgs
+  rclcpp_action
 )
 
 install(TARGETS

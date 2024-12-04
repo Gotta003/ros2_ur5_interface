@@ -1,57 +1,101 @@
 #include <rclcpp/rclcpp.hpp>
+#include <control_msgs/action/follow_joint_trajectory.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
-#include <trajectory_msgs/msg/joint_trajectory_point.hpp>
-#include <std_msgs/msg/header.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 #include <chrono>
 
 using namespace std::chrono_literals;
 
-class TrajectoryPublisher : public rclcpp::Node
+class TrajectoryActionClient : public rclcpp::Node
 {
 public:
-    TrajectoryPublisher() : Node("trajectory_publisher")
-    {
-         increment_ = 0.0;  // Initialize the increment
-        // Create a publisher for the scaled joint trajectory controller
-        trajectory_publisher_ = this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
-            "/scaled_joint_trajectory_controller/joint_trajectory", 10);
+    using FollowJointTrajectory = control_msgs::action::FollowJointTrajectory;
+    using GoalHandleFollowJointTrajectory = rclcpp_action::ClientGoalHandle<FollowJointTrajectory>;
 
-        // Create a timer that will periodically publish a trajectory
-        timer_ = this->create_wall_timer(
-            1s, std::bind(&TrajectoryPublisher::publish_trajectory, this));
+    TrajectoryActionClient() : Node("trajectory_action_client")
+    {
+        increment_ = 0.0; // Initialize the increment
+
+        // Create an action client for the FollowJointTrajectory action
+        action_client_ = rclcpp_action::create_client<FollowJointTrajectory>(
+            this, "/scaled_joint_trajectory_controller/follow_joint_trajectory");
+
+        // Wait for the action server to be available
+        if (!action_client_->wait_for_action_server(10s))
+        {
+            RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
+            rclcpp::shutdown();
+            return;
+        }
+
+        // Send a trajectory goal
+        send_trajectory_goal();
+
     }
 
 private:
-    void publish_trajectory()
+    void send_trajectory_goal()
     {
         // Create the JointTrajectory message
         trajectory_msgs::msg::JointTrajectory traj_msg;
-        traj_msg.header.stamp = this->now();  // Set the current timestamp
-        traj_msg.header.frame_id = "base_link";  // Set the appropriate reference frame
+        traj_msg.header.stamp = this->now();
+        for (int i = 0; i < 10; i++)
+        {
+            traj_msg.joint_names = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
 
-        // Define the joint names for the trajectory
-        traj_msg.joint_names = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
+            // Create a joint trajectory point
+            trajectory_msgs::msg::JointTrajectoryPoint point;
+            point.positions = {-1.60 + increment_, -1.72, -2.20, -0.81, 1.60, -0.03}; // Example positions for each joint
+            increment_ += 0.1; // Increment the position for the next trajectory
 
-        // Create a joint trajectory point
-        trajectory_msgs::msg::JointTrajectoryPoint point;
-        point.positions = { increment_, -0.6, -1.7, -2.4, -1.57, 0.0};  // Example positions for each joint
-        // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // Example velocities for each joint
-        // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // Example accelerations for each joint
+            // Set the time from the start for the point (e.g., 2 seconds)
+            point.time_from_start = rclcpp::Duration(2.0s + i * 2.0s);
+            traj_msg.points.push_back(point);
+        }
+        
+        // Create a goal message for the action
+        auto goal_msg = FollowJointTrajectory::Goal();
+        goal_msg.trajectory = traj_msg;
 
-        increment_ += 0.1;  // Increment the position for the next trajectory
+        RCLCPP_INFO(this->get_logger(), "Sending trajectory goal");
 
-        // Set the time from the start for each point (e.g., 2 seconds)
-        point.time_from_start = rclcpp::Duration(2.0s);
+        // Send the goal to the action server
+        auto send_goal_options = rclcpp_action::Client<FollowJointTrajectory>::SendGoalOptions();
+        send_goal_options.goal_response_callback =
+            [this](const GoalHandleFollowJointTrajectory::SharedPtr& goal_handle) {
+                if (!goal_handle)
+                {
+                    RCLCPP_ERROR(this->get_logger(), "Goal was rejected by the server");
+                }
+                else
+                {
+                    RCLCPP_INFO(this->get_logger(), "Goal accepted by the server, waiting for result");
+                }
+            };
 
-        // Add the point to the trajectory message
-        traj_msg.points.push_back(point);
+        send_goal_options.result_callback =
+            [this](const GoalHandleFollowJointTrajectory::WrappedResult &result) {
+                switch (result.code)
+                {
+                case rclcpp_action::ResultCode::SUCCEEDED:
+                    RCLCPP_INFO(this->get_logger(), "Goal succeeded");
+                    break;
+                case rclcpp_action::ResultCode::ABORTED:
+                    RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+                    break;
+                case rclcpp_action::ResultCode::CANCELED:
+                    RCLCPP_WARN(this->get_logger(), "Goal was canceled");
+                    break;
+                default:
+                    RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+                    break;
+                }
+            };
 
-        // Publish the trajectory
-        trajectory_publisher_->publish(traj_msg);
-        RCLCPP_INFO(this->get_logger(), "Published trajectory with %zu points", traj_msg.points.size());
+        action_client_->async_send_goal(goal_msg, send_goal_options);
     }
 
-    rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectory_publisher_;
+    rclcpp_action::Client<FollowJointTrajectory>::SharedPtr action_client_;
     rclcpp::TimerBase::SharedPtr timer_;
     double increment_;
 };
@@ -59,7 +103,7 @@ private:
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<TrajectoryPublisher>());
+    rclcpp::spin(std::make_shared<TrajectoryActionClient>());
     rclcpp::shutdown();
     return 0;
 }
