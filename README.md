@@ -54,7 +54,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 
 ## Simulation
 You can choose between two simulation environments:
-- **URSim**: A graphical simulation environment for the UR5 robot that uses a dedicated Docker container and is lightweight.
+- **URSim**: A graphical simulation environment for the UR5 robot that uses a dedicated Docker container. This solution is preferred since it is lightweight and simulates the real connection with the robot. But with this solution you can simulate ONLY the robot, not the environment (no cameras, external sensors, etc).
 - **Gazebo**: A more complex simulation environment that uses the ROS 2 Gazebo bridge and is included in the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
 
 ## How to Use (URSim)
