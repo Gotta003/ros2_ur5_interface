@@ -34,7 +34,7 @@ private:
 
         // Create a joint trajectory point
         trajectory_msgs::msg::JointTrajectoryPoint point;
-        point.positions = {-1.60 + increment_, -1.72, -2.20, -0.81, 1.60, -0.03};  // Example positions for each joint
+        point.positions = { increment_, -0.6, -1.7, -2.4, -1.57, 0.0};  // Example positions for each joint
         // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // Example velocities for each joint
         // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  // Example accelerations for each joint
 
