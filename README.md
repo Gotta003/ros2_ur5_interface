@@ -1,7 +1,7 @@
 # UR5 Simulation Repository
 
-This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image, which delivers a pre-configured ROS 2 Humble environment tailored for the **UR5 manipulator robot**.
-This repo is included in the home/ros2_ws of the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
+This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image, which delivers a pre-configured ROS 2 Jazzy environment tailored for the **UR5 manipulator robot**.
+This repo is included, at its latest release, in the home/ros2_ws of the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
@@ -22,17 +22,24 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 │   ├── sim.launch.py                     # Launch file to interact with simulated and real UR5 robot
 ├── src/
 │   ├── publish_trajectory_node.cpp       # Example node for trajectory publication
+├── config/
+│   ├── ur_controllers.yaml               # Configuration file for the UR5 controllers
+├── params/
+│   ├── ur5_bridge.yaml                   # Parameters file for the Gazbo bridge
 ├── models/
-│   ├── desk.urdf                        # URDF file that defines the desk where the UR5 is mounted
-│   ├── desk.sdf                         # SDF file that defines the desk where the UR5 is mounted
-│   ├── desk.config                      # Config file auxiliary to the SDF file
+│   ├── desk.urdf                         # URDF file that defines the desk where the UR5 is mounted
+│   ├── desk.sdf                          # SDF file that defines the desk where the UR5 is mounted
+│   ├── desk.config                       # Config file auxiliary to the SDF file
+│   ├── ur_gz.ros2_control.xacro          # URDF file that defines the UR5 robot with ROS 2 control
+│   ├── ur_gz.urdf.xacro                  # URDF file that defines the UR5 robot
 │   ├── mesh
 │   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
 ├── rviz/
 │   ├── ur5.rviz                          # RViz configuration file
 ├── bash_scripts/
-│   ├── ur5.sh                         # Starts the URSim simulator container
+│   ├── ur5.sh                            # Starts the URSim simulator container
 │   ├── ros2.sh                           # Starts the pla10/ros2_ur5_interface container
+│   ├── entrypoint.sh                     # Entrypoint script used in the docker
 ├── README.md                             # Project overview and instructions
 ```
 
@@ -45,8 +52,12 @@ The resources in this repository were developed for the **"Fundamentals of Robot
   docker network create --subnet=192.168.56.0/24 ursim_net
   ```
 
+## Simulation
+You can choose between two simulation environments:
+- **URSim**: A graphical simulation environment for the UR5 robot that uses a dedicated Docker container and is lightweight.
+- **Gazebo**: A more complex simulation environment that uses the ROS 2 Gazebo bridge and is included in the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
 
-## How to Use
+## How to Use (URSim)
 ### 1. Start the UR5 Simulator
 Run the URSim container using the provided bash script:
 ```bash
@@ -60,7 +71,7 @@ To prepare the robot to work with ROS2 you need to go to the program tab and add
 
 ---
 
-### 2. Start the ROS 2 Simulation Environment
+### 2. Start the ROS 2 Interface
 Run the ROS 2 container using the provided bash script:
 ```bash
 bash bash_scripts/ros2.sh
@@ -81,10 +92,33 @@ This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_u
   ```bash
   source install/setup.bash
   ```
-- Launch the simulation or control nodes using the provided launch files, e.g.:
+- Launch the control nodes using the provided launch files:
   ```bash
-  ros2 launch launch/ros2_ur5_interface.launch.py
+  ros2 launch ros2_ur5_interface interface.launch.py
   ```
+
+## How to Use (Gazebo)
+### 1. Start the UR5 Gazebo Simulation
+Run the ROS 2 container using the provided bash script:
+```bash
+bash bash_scripts/ros2.sh
+```
+This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
+
+- Open a terminal inside the ROS 2 container (accessible via noVNC).
+- Navigate to the ROS 2 workspace:
+  ```bash
+  cd home/ros2_ws
+  ```
+- Source the ROS 2 setup:
+  ```bash
+  source install/setup.bash
+  ```
+- Launch the simulation nodes using the provided launch files:
+  ```bash
+  ros2 launch ros2_ur5_interface sim.launch.py
+  ```
+
 
 ---
 
