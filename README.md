@@ -23,9 +23,9 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ├── src/
 │   ├── publish_trajectory_node.cpp       # Example node for trajectory publication
 ├── models/
-│   ├── model.urdf                        # URDF file that defines the desk where the UR5 is mounted
-│   ├── model.sdf                         # SDF file that defines the desk where the UR5 is mounted
-│   ├── model.config                      # Config file auxiliary to the SDF file
+│   ├── desk.urdf                        # URDF file that defines the desk where the UR5 is mounted
+│   ├── desk.sdf                         # SDF file that defines the desk where the UR5 is mounted
+│   ├── desk.config                      # Config file auxiliary to the SDF file
 │   ├── mesh
 │   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
 ├── rviz/
