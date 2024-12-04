@@ -34,13 +34,14 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 │   ├── ur_gz.urdf.xacro                  # URDF file that defines the UR5 robot
 │   ├── mesh
 │   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
-├── rviz/
-│   ├── ur5.rviz                          # RViz configuration file
-├── scripts/
+├── docker/
 │   ├── Dockerfile                        # Dockerfile for the ROS 2 UR5 interface docker image
 │   ├── entrypoint.sh                     # Entrypoint script used in the docker
+├── scripts/
 │   ├── ur5.sh                            # Starts the URSim simulator container
 │   ├── ros2.sh                           # Starts the pla10/ros2_ur5_interface container
+├── rviz/
+│   ├── ur5.rviz                          # RViz configuration file
 ├── README.md                             # Project overview and instructions
 ```
 
