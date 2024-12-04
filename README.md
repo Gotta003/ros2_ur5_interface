@@ -1,7 +1,7 @@
 # UR5 Simulation Repository
 
 This repository provides **auxiliary resources** to help students and robotics enthusiasts visualize simulations and create new nodes for their projects. It complements the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image, which delivers a pre-configured ROS 2 Jazzy environment tailored for the **UR5 manipulator robot**.
-This repo is included, at its latest release, in the home/ros2_ws of the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
+This repo is included, at its latest release, in the /home/ubuntu/ros2_ws of the [**pla10/ros2_ur5_interface**](https://hub.docker.com/r/pla10/ros2_ur5_interface) Docker image.
 
 The resources in this repository were developed for the **"Fundamentals of Robotics" course** at the **University of Trento** and aim to streamline project development and learning.
 
@@ -86,7 +86,7 @@ This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_u
 - Open a terminal inside the ROS 2 container (accessible via noVNC).
 - Navigate to the ROS 2 workspace:
   ```bash
-  cd home/ros2_ws
+  cd /home/ubuntu/ros2_ws
   ```
 - Source the ROS 2 setup:
   ```bash
@@ -108,7 +108,7 @@ This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_u
 - Open a terminal inside the ROS 2 container (accessible via noVNC).
 - Navigate to the ROS 2 workspace:
   ```bash
-  cd home/ros2_ws
+  cd /home/ubuntu/ros2_ws
   ```
 - Source the ROS 2 setup:
   ```bash
