@@ -40,6 +40,8 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ├── scripts/
 │   ├── ur5.sh                            # Starts the URSim simulator container
 │   ├── ros2.sh                           # Starts the pla10/ros2_ur5_interface container
+├── worlds/
+│   ├── empty.world                       # Gazebo world file with plugins for the UR5 simulation
 ├── rviz/
 │   ├── ur5.rviz                          # RViz configuration file
 ├── README.md                             # Project overview and instructions
