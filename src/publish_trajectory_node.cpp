@@ -15,8 +15,6 @@ public:
 
     TrajectoryActionClient() : Node("trajectory_action_client")
     {
-        increment_ = 0.0; // Initialize the increment
-
         // Create an action client for the FollowJointTrajectory action
         action_client_ = rclcpp_action::create_client<FollowJointTrajectory>(
             this, "/scaled_joint_trajectory_controller/follow_joint_trajectory");
@@ -28,6 +26,8 @@ public:
             rclcpp::shutdown();
             return;
         }
+
+        time_between_points_ = 0.5; // Time between points in seconds
 
         // Send a trajectory goal
         send_trajectory_goal();
@@ -43,18 +43,56 @@ private:
         traj_msg.header.stamp = rclcpp::Time(0);
         traj_msg.joint_names = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
         
+        // Interpolate between start and middle positions
+        std::vector<double> start_config = {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0};
+        std::vector<double> middle_config = {-1.41, -1.23, -1.26, -2.22, -1.60, 0.0};
+                                          // -80.72, -70.44, -72.04, -127.13, -91.40, 0.0};
+
+        // Total interpolation time (10 points * time_between_points_)
+        double T = 10 * time_between_points_;
+
+        double middle_time;
         for (int i = 0; i < 10; i++)
         {    
             // Create a joint trajectory point
             trajectory_msgs::msg::JointTrajectoryPoint point;
-            point.positions = {-1.60 + increment_, -1.72, -2.20, -0.81, 1.60, -0.03}; // Example positions for each joint
+
+            // Calculate time elapsed
+            double t = i * time_between_points_;
+
+            // Interpolate each joint's position
+            for (size_t j = 0; j < start_config.size(); j++) 
+            {
+                double interpolated_position = start_config[j] + (t / T) * (middle_config[j] - start_config[j]);
+                point.positions.push_back(interpolated_position);
+            }
+
+            // Set the time from the start for the point
+            point.time_from_start = rclcpp::Duration::from_seconds(i * time_between_points_);
+            // Add the point to the trajectory
+            traj_msg.points.push_back(point);
+
+            middle_time = i * time_between_points_;
+        }
+
+        middle_time += time_between_points_;
+
+        double increment = 0.0; // Initialize the increment
+        for (int i = 0; i < 10; i++)
+        {    
+            // Create a joint trajectory point
+            trajectory_msgs::msg::JointTrajectoryPoint point;
+
+            point.positions = {-1.41 + increment, -1.23, -1.26, -2.22, -1.60, 0.0}; // Example positions for each joint
             // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example velocities for each joint
             // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example accelerations for each joint
-            increment_ += 0.1; // Increment the position for the next trajectory
 
-            // Set the time from the start for the point (e.g., 2 seconds)
-            point.time_from_start.sec = i * 2.0;
+            // Set the time from the start for the point
+            point.time_from_start = rclcpp::Duration::from_seconds(middle_time + i * time_between_points_);
+            // Add the point to the trajectory
             traj_msg.points.push_back(point);
+
+            increment += 0.1; // Increment the position for the next trajectory
         }
         
         // Create a goal message for the action
@@ -66,8 +104,8 @@ private:
         {
             control_msgs::msg::JointTolerance joint_tolerance;
             joint_tolerance.name = traj_msg.joint_names[i];
-            joint_tolerance.position = 0.1;
-            joint_tolerance.velocity = 0.1;
+            joint_tolerance.position = 1.0;
+            joint_tolerance.velocity = 1.0;
             goal_msg.goal_tolerance.push_back(joint_tolerance);
         }
 
@@ -111,7 +149,7 @@ private:
 
     rclcpp_action::Client<FollowJointTrajectory>::SharedPtr action_client_;
     rclcpp::TimerBase::SharedPtr timer_;
-    double increment_;
+    double time_between_points_;
 };
 
 int main(int argc, char **argv)
