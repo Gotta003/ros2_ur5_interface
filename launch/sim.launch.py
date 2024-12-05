@@ -128,6 +128,7 @@ def generate_launch_description():
         ],
         output='screen',
     )
+
     spawn_ur5 = Node(
         package='ros_gz_sim',
         executable='create',
@@ -140,6 +141,19 @@ def generate_launch_description():
             '-R', '0.00',
             '-P', '3.1415',
             '-Y', '0.00',
+        ],
+        output='screen',
+    )
+
+    spawn_block =  Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', "block",
+            '-file', [FindPackageShare(package_name), '/models/blocks/X1-Y1-Z2/model.sdf'],
+            '-x', '0.50',
+            '-y', '0.34',
+            '-z', '0.9',
         ],
         output='screen',
     )
@@ -196,6 +210,7 @@ def generate_launch_description():
         gazebo_launch,
         spawn_desk,
         spawn_ur5,
+        spawn_block,
         gazebo_ros_bridge,
         gazebo_ros_image_bridge,
         rviz2,

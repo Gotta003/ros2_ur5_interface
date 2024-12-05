@@ -136,11 +136,11 @@
 				</material>
 			</visual>
 
-			<pose>-0.4 0.45 1.2 0 0.5 -0.1</pose>
+			<pose>-0.5 0.5 1.2 0 0.4 -0.06</pose>
 			<sensor name="camera" type="camera">
 			<always_on>true</always_on>
 			<visualize>true</visualize>
-			<update_rate>20</update_rate>
+			<update_rate>10</update_rate>
 			<topic>camera/image_raw</topic>
 			<gz_frame_id>camera_rgb_frame</gz_frame_id>
 			<camera name="zed_camera">
