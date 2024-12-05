@@ -1,5 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <control_msgs/action/follow_joint_trajectory.hpp>
+#include <control_msgs/msg/joint_tolerance.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <chrono>
@@ -38,24 +39,37 @@ private:
     {
         // Create the JointTrajectory message
         trajectory_msgs::msg::JointTrajectory traj_msg;
-        traj_msg.header.stamp = this->now();
+        // Set time to zero
+        traj_msg.header.stamp = rclcpp::Time(0);
+        traj_msg.joint_names = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
+        
         for (int i = 0; i < 10; i++)
-        {
-            traj_msg.joint_names = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
-
+        {    
             // Create a joint trajectory point
             trajectory_msgs::msg::JointTrajectoryPoint point;
             point.positions = {-1.60 + increment_, -1.72, -2.20, -0.81, 1.60, -0.03}; // Example positions for each joint
+            // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example velocities for each joint
+            // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example accelerations for each joint
             increment_ += 0.1; // Increment the position for the next trajectory
 
             // Set the time from the start for the point (e.g., 2 seconds)
-            point.time_from_start = rclcpp::Duration(2.0s + i * 2.0s);
+            point.time_from_start.sec = i * 2.0;
             traj_msg.points.push_back(point);
         }
         
         // Create a goal message for the action
         auto goal_msg = FollowJointTrajectory::Goal();
         goal_msg.trajectory = traj_msg;
+
+        goal_msg.goal_time_tolerance.nanosec = 500000000;
+        for (int i = 0; i < traj_msg.joint_names.size(); i++)
+        {
+            control_msgs::msg::JointTolerance joint_tolerance;
+            joint_tolerance.name = traj_msg.joint_names[i];
+            joint_tolerance.position = 0.1;
+            joint_tolerance.velocity = 0.1;
+            goal_msg.goal_tolerance.push_back(joint_tolerance);
+        }
 
         RCLCPP_INFO(this->get_logger(), "Sending trajectory goal");
 
