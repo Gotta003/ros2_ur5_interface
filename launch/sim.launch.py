@@ -1,4 +1,5 @@
 import os
+import subprocess
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.event_handlers import OnProcessExit
@@ -7,7 +8,51 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, Comm
 from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.actions import AppendEnvironmentVariable, ExecuteProcess, TimerAction
+from launch.actions import AppendEnvironmentVariable, ExecuteProcess, TimerAction, OpaqueFunction
+
+
+def generate_urdf_and_sdf(context, *args, **kwargs):
+    package_name = 'ros2_ur5_interface'
+    # Paths
+    xacro_file = os.path.join(
+        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf.xacro'
+    )
+    urdf_file = os.path.join(
+        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf'
+    )
+    sdf_file = os.path.join(
+        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.sdf'
+    )
+
+    # Generate URDF from Xacro
+    try:
+        xacro_command = [
+            FindExecutable(name="xacro").perform(context),
+            xacro_file
+        ]
+        urdf_output = subprocess.check_output(xacro_command, text=True)
+        with open(urdf_file, 'w') as urdf_fp:
+            urdf_fp.write(urdf_output)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error generating URDF: {e}")
+
+    # Convert URDF to SDF
+    try:
+        sdf_command = [
+            FindExecutable(name="gz").perform(context),
+            "sdf",
+            "-p",
+            urdf_file,
+        ]
+        sdf_output = subprocess.check_output(sdf_command, text=True)
+        with open(sdf_file, 'w') as sdf_fp:
+            sdf_fp.write(sdf_output)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"Error converting URDF to SDF: {e}")
+
+    print(f"Successfully generated URDF at {urdf_file}")
+    print(f"Successfully generated SDF at {sdf_file}")
+
 
 def generate_launch_description():
     package_name = 'ros2_ur5_interface'
@@ -25,15 +70,21 @@ def generate_launch_description():
 
     ur_type = LaunchConfiguration("ur_type")
 
-    world_file = PathJoinSubstitution([FindPackageShare(package_name),'worlds','empty.world'])
+    world_file = os.path.join(get_package_share_directory(package_name),'worlds','empty.world')
 
-    # Retrieve the URDF file path
+    # Retrieve the URDF file for the desk
     urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'desk.urdf')
     with open(urdf_file, 'r') as infp:
         desk_robot_desc = infp.read()
 
+    # Retrieve the SDF file path for the block
+    block_sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.sdf')
+    block_urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf')
+    with open(block_urdf_file, 'r') as infp:
+        block_robot_desc = infp.read()
+    
     # Retrieve the RViz config file path
-    rviz_config_file = PathJoinSubstitution([FindPackageShare(package_name), 'rviz', 'ur5.rviz'])
+    rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz', 'ur5.rviz')
 
     robot_description_content = Command(
         [
@@ -79,7 +130,7 @@ def generate_launch_description():
         arguments=['0.5', '0.34', '1.79', '0', '3.1415', '0', 'link', 'world']
     )
 
-    # Robot state publisher node
+    # Desk robot state publisher node
     desk_robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -89,13 +140,23 @@ def generate_launch_description():
         parameters=[{'robot_description': desk_robot_desc}]
     )
 
-    # Robot state publisher node
+    # UR robot state publisher node
     ur_robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
         name='robot_state_publisher',
         parameters=[{'robot_description': robot_description_content}]
+    )
+
+    # Block robot state publisher node
+    block_robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace='block',
+        name='robot_state_publisher',
+        parameters=[{'robot_description': block_robot_desc}]
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -150,7 +211,7 @@ def generate_launch_description():
         executable='create',
         arguments=[
             '-name', "block",
-            '-file', [FindPackageShare(package_name), '/models/blocks/X1-Y1-Z2/model.sdf'],
+            '-file', block_sdf_file,
             '-x', '0.50',
             '-y', '0.34',
             '-z', '0.9',
@@ -201,10 +262,12 @@ def generate_launch_description():
     # Return the LaunchDescription
     return LaunchDescription([
         *declared_arguments,
+        OpaqueFunction(function=generate_urdf_and_sdf),
         set_env_vars,
         fixed_map_broadcast,
         desk_robot_state_publisher_node,
         ur_robot_state_publisher_node,
+        block_robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         initial_joint_controller_spawner,
         gazebo_launch,
