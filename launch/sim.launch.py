@@ -15,13 +15,13 @@ def generate_urdf_and_sdf(context, *args, **kwargs):
     package_name = 'ros2_ur5_interface'
     # Paths
     xacro_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf.xacro'
+        get_package_share_directory(package_name), 'models', 'blocks/model.urdf.xacro'
     )
     urdf_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf'
+        get_package_share_directory(package_name), 'models', 'blocks/model.urdf'
     )
     sdf_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.sdf'
+        get_package_share_directory(package_name), 'models', 'blocks/model.sdf'
     )
 
     # Generate URDF from Xacro
@@ -78,8 +78,8 @@ def generate_launch_description():
         desk_robot_desc = infp.read()
 
     # Retrieve the SDF file path for the block
-    block_sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.sdf')
-    block_urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/X1-Y1-Z2/model.urdf')
+    block_sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/model.sdf')
+    block_urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/model.urdf')
     with open(block_urdf_file, 'r') as infp:
         block_robot_desc = infp.read()
     

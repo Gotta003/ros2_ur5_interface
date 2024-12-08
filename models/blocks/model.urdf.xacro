@@ -2,7 +2,7 @@
 <robot name="X1-Y1-Z2" xmlns:xacro="http://ros.org/wiki/xacro">
 
   <!-- Parameters for reusability -->
-  <xacro:property name="mesh_path" value="$(find ros2_ur5_interface)/models/blocks/X1-Y1-Z2/mesh/X1-Y1-Z2.stl" />
+  <xacro:property name="mesh_path" value="$(find ros2_ur5_interface)/models/blocks/mesh/X1-Y1-Z2.stl" />
   <xacro:property name="mass" value="1.0" />
   <xacro:property name="ixx" value="0.000034943" />
   <xacro:property name="iyy" value="0.000034943" />
