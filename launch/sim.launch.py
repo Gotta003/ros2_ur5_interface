@@ -14,7 +14,8 @@ package_name = 'ros2_ur5_interface'
 
 def spawn_block(context, *args, **kwargs):
     block_number = "1"
-    block_type = "X1-Y1-Z2"
+    block_types = ["X1-Y1-Z2", "X1-Y2-Z2", "X1-Y4-Z2", "X1-Y2-Z1", "X1-Y3-Z2-FILLET", "X2-Y2-Z2-FILLET", "X1-Y2-Z2-CHAMFER", "X1-Y3-Z2", "X2-Y2-Z2", "X1-Y2-Z2-TWINFILLET", "X1-Y4-Z1"]
+    block_type = block_types[0]
     # Paths
     xacro_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf.xacro')
     urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf')
@@ -118,6 +119,9 @@ def generate_launch_description():
     # Retrieve the RViz config file path
     rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz', 'ur5.rviz')
 
+    # Retrieve the URDF file path
+    desk_urdf = Command([PathJoinSubstitution([FindExecutable(name='xacro')])," ",PathJoinSubstitution([FindPackageShare(package_name), "models", "desk.urdf.xacro"])])
+
     camera_sdf = os.path.join(get_package_share_directory(package_name), 'models', 'camera.sdf')
 
     robot_description_content = Command(
@@ -189,6 +193,16 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([FindPackageShare('ros_gz_sim'), '/launch/gz_sim.launch.py']),
         launch_arguments={'gz_args': ['-r -s ', world_file ], 'on_exit_shutdown': 'true'}.items()
         #                              -r -s -v4
+    )
+
+    spawn_desk = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', "desk",
+            '-string', desk_urdf,
+        ],
+        output='screen',
     )
     
     spawn_ur5 = Node(
@@ -267,6 +281,7 @@ def generate_launch_description():
         joint_state_broadcaster_spawner,
         initial_joint_controller_spawner,
         gazebo_launch,
+        spawn_desk,
         spawn_ur5,
         spawn_camera,
         gazebo_ros_bridge,

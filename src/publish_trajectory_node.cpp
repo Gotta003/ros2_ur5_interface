@@ -45,14 +45,14 @@ private:
         
         // Interpolate between start and middle positions
         std::vector<double> start_config = {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0};
-        std::vector<double> middle_config = {-1.41, -1.23, -1.26, -2.22, -1.60, 0.0};
+        std::vector<double> middle_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0}; 
                                           // -80.72, -70.44, -72.04, -127.13, -91.40, 0.0};
 
         // Total interpolation time (10 points * time_between_points_)
         double T = 10 * time_between_points_;
 
         double middle_time;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10 + 1; i++)
         {    
             // Create a joint trajectory point
             trajectory_msgs::msg::JointTrajectoryPoint point;
@@ -83,7 +83,7 @@ private:
             // Create a joint trajectory point
             trajectory_msgs::msg::JointTrajectoryPoint point;
 
-            point.positions = {-1.41 + increment, -1.23, -1.26, -2.22, -1.60, 0.0}; // Example positions for each joint
+            point.positions = {-1.41 + increment, -0.96, -1.8, -1.96, -1.60, 0.0}; // Example positions for each joint
             // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example velocities for each joint
             // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example accelerations for each joint
 
