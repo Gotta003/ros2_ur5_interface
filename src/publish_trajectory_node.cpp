@@ -45,7 +45,7 @@ private:
         
         // Interpolate between start and middle positions
         std::vector<double> start_config = {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0};
-        std::vector<double> middle_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0}; 
+        std::vector<double> end_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0}; 
                                           // -80.72, -70.44, -72.04, -127.13, -91.40, 0.0};
 
         // Total interpolation time (10 points * time_between_points_)
@@ -63,7 +63,7 @@ private:
             // Interpolate each joint's position
             for (size_t j = 0; j < start_config.size(); j++) 
             {
-                double interpolated_position = start_config[j] + (t / T) * (middle_config[j] - start_config[j]);
+                double interpolated_position = start_config[j] + (t / T) * (end_config[j] - start_config[j]);
                 point.positions.push_back(interpolated_position);
             }
 
@@ -77,23 +77,70 @@ private:
 
         middle_time += time_between_points_;
 
-        double increment = 0.0; // Initialize the increment
-        for (int i = 0; i < 10; i++)
+        // Interpolate between start and middle positions
+        start_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0};
+        end_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0}; 
+
+        // Total interpolation time (10 points * time_between_points_)
+        T = 3 * time_between_points_;
+
+        double start_time = middle_time;
+        for (int i = 0; i < 3 + 1; i++)
         {    
             // Create a joint trajectory point
             trajectory_msgs::msg::JointTrajectoryPoint point;
 
-            point.positions = {-1.41 + increment, -0.96, -1.8, -1.96, -1.60, 0.0}; // Example positions for each joint
-            // point.velocities = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example velocities for each joint
-            // point.accelerations = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // Example accelerations for each joint
+            // Calculate time elapsed
+            double t = i * time_between_points_;
+
+            // Interpolate each joint's position
+            for (size_t j = 0; j < start_config.size(); j++) 
+            {
+                double interpolated_position = start_config[j] + (t / T) * (end_config[j] - start_config[j]);
+                point.positions.push_back(interpolated_position);
+            }
 
             // Set the time from the start for the point
-            point.time_from_start = rclcpp::Duration::from_seconds(middle_time + i * time_between_points_);
+            point.time_from_start = rclcpp::Duration::from_seconds(i * time_between_points_ + start_time);
             // Add the point to the trajectory
             traj_msg.points.push_back(point);
 
-            increment += 0.1; // Increment the position for the next trajectory
+            middle_time = i * time_between_points_;
         }
+        
+        middle_time += time_between_points_;
+
+        // Interpolate between start and middle positions
+        start_config = {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0}; 
+        end_config = {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0}; 
+
+        // Total interpolation time (10 points * time_between_points_)
+        T = 10 * time_between_points_;
+
+        start_time += middle_time;
+        for (int i = 0; i < 10 + 1; i++)
+        {    
+            // Create a joint trajectory point
+            trajectory_msgs::msg::JointTrajectoryPoint point;
+
+            // Calculate time elapsed
+            double t = i * time_between_points_;
+
+            // Interpolate each joint's position
+            for (size_t j = 0; j < start_config.size(); j++) 
+            {
+                double interpolated_position = start_config[j] + (t / T) * (end_config[j] - start_config[j]);
+                point.positions.push_back(interpolated_position);
+            }
+
+            // Set the time from the start for the point
+            point.time_from_start = rclcpp::Duration::from_seconds(i * time_between_points_ + start_time);
+            // Add the point to the trajectory
+            traj_msg.points.push_back(point);
+
+            middle_time = i * time_between_points_;
+        }
+
         
         // Create a goal message for the action
         auto goal_msg = FollowJointTrajectory::Goal();

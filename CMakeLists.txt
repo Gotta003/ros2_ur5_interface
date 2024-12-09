@@ -13,9 +13,11 @@ find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(std_srvs REQUIRED)
 
 
 add_executable(publish_trajectory_node src/publish_trajectory_node.cpp)
+add_executable(gripper_service src/gripper_service.cpp)
 
 ament_target_dependencies(publish_trajectory_node
   rclcpp
@@ -25,8 +27,18 @@ ament_target_dependencies(publish_trajectory_node
   rclcpp_action
 )
 
+ament_target_dependencies(gripper_service
+  rclcpp
+  trajectory_msgs
+  sensor_msgs
+  control_msgs
+  rclcpp_action
+  std_srvs
+)
+
 install(TARGETS
   publish_trajectory_node
+  gripper_service
   DESTINATION lib/${PROJECT_NAME}
 )
 

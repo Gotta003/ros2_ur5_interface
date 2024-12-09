@@ -54,6 +54,7 @@ def spawn_block(context, *args, **kwargs):
             <publish_model_pose>true</publish_model_pose>
             <publish_nested_model_pose>true</publish_nested_model_pose>
             <use_pose_vector_msg>true</use_pose_vector_msg>
+            <update_frequency>100.0</update_frequency>
         </plugin>
         """
         # Append the sensor to the appropriate location
@@ -89,8 +90,8 @@ def spawn_block(context, *args, **kwargs):
         arguments=[
             '-name', "block"+block_number,
             '-file', sdf_file,
-            '-x', '0.50',
-            '-y', '0.34',
+            '-x', '0.405',
+            '-y', '0.58',
             '-z', '0.90',
         ],
         output='screen',
@@ -113,15 +114,9 @@ def generate_launch_description():
     )
 
     ur_type = LaunchConfiguration("ur_type")
-
     world_file = os.path.join(get_package_share_directory(package_name),'worlds','empty.world')
-    
-    # Retrieve the RViz config file path
     rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz', 'ur5.rviz')
-
-    # Retrieve the URDF file path
     desk_urdf = Command([PathJoinSubstitution([FindExecutable(name='xacro')])," ",PathJoinSubstitution([FindPackageShare(package_name), "models", "desk.urdf.xacro"])])
-
     camera_sdf = os.path.join(get_package_share_directory(package_name), 'models', 'camera.sdf')
 
     robot_description_content = Command(
@@ -130,23 +125,17 @@ def generate_launch_description():
             " ",
             PathJoinSubstitution([FindPackageShare(package_name), "models", "ur_gz.urdf.xacro"]),
             " ",
-            "safety_limits:=",
-            "true",
+            "safety_limits:=", "true",
             " ",
-            "safety_pos_margin:=",
-            "0.15",
+            "safety_pos_margin:=", "0.15",
             " ",
-            "safety_k_position:=",
-            "20",
+            "safety_k_position:=", "20",
             " ",
-            "name:=",
-            "ur",
+            "name:=", "ur",
             " ",
-            "ur_type:=",
-            ur_type,
+            "ur_type:=", ur_type,
             " ",
-            "tf_prefix:=",
-            "",
+            "tf_prefix:=", "",
             " ",
             "simulation_controllers:=",
             PathJoinSubstitution([FindPackageShare(package_name), "config", "ur_controllers.yaml"]),
@@ -183,10 +172,16 @@ def generate_launch_description():
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
-    initial_joint_controller_spawner = Node(
+    joint_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=["scaled_joint_trajectory_controller", "-c", "/controller_manager"],
+    )
+
+    gripper_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["gripper_controller", "-c", "/controller_manager"],
     )
 
     gazebo_launch = IncludeLaunchDescription(
@@ -279,7 +274,8 @@ def generate_launch_description():
         ur_robot_state_publisher_node,
         OpaqueFunction(function=spawn_block),
         joint_state_broadcaster_spawner,
-        initial_joint_controller_spawner,
+        joint_controller_spawner,
+        gripper_controller_spawner,
         gazebo_launch,
         spawn_desk,
         spawn_ur5,
