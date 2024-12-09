@@ -5,6 +5,7 @@
   <!-- import main macro -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
   <xacro:include filename="soft_robotics_gripper.xacro"/>
+  <xacro:include filename="$(find ros2_ur5_interface)/models/desk.urdf.xacro" />
 
   <xacro:include filename="$(find ros2_ur5_interface)/models/ur_gz.ros2_control.xacro" />
 
@@ -25,14 +26,11 @@
 
   <xacro:arg name="simulation_controllers" default="" />
 
-  <!-- create link fixed to the "world" -->
-  <link name="world" />
-
   <!-- arm -->
   <xacro:ur_robot
     name="$(arg name)"
     tf_prefix="$(arg tf_prefix)"
-    parent="world"
+    parent="desk"
     joint_limits_parameters_file="$(arg joint_limit_params)"
     kinematics_parameters_file="$(arg kinematics_params)"
     physical_parameters_file="$(arg physical_params)"
@@ -42,7 +40,7 @@
     safety_k_position="$(arg safety_k_position)"
     force_abs_paths="true"
     >
-    <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the world -->
+    <origin xyz="0.50 0.34 1.79" rpy="0 3.1415 0" />          <!-- position robot in the desk -->
   </xacro:ur_robot>
 
   <!-- gripper -->
@@ -50,10 +48,10 @@
      parent="tool0"
      prefix=""
      >
-     <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the world -->
+     <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the desk -->
    </xacro:soft_robotics_gripper>
 
-  <gazebo reference="world">
+  <gazebo reference="desk">
   </gazebo>
   <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">

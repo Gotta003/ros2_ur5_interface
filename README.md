@@ -32,7 +32,7 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 │   ├── desk.config                       # Config file auxiliary to the SDF file
 │   ├── ur_gz.ros2_control.xacro          # URDF file that defines the UR5 robot with ROS 2 control
 │   ├── ur_gz.urdf.xacro                  # URDF file that defines the UR5 robot
-│   ├── mesh
+│   ├── meshes
 │   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
 ├── docker/
 │   ├── Dockerfile                        # Dockerfile for the ROS 2 UR5 interface docker image

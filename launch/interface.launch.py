@@ -2,9 +2,12 @@ import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, ExecuteProcess, TimerAction
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable
+from launch_ros.substitutions import FindPackageShare
 from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+
+package_name = 'ros2_ur5_interface'
 
 def generate_launch_description():
     # Declare the robot IP address argument
@@ -15,21 +18,19 @@ def generate_launch_description():
     )
 
     # Retrieve the URDF file path
-    urdf_file = os.path.join(get_package_share_directory('ros2_ur5_interface'), 'models', 'desk.urdf')
-    with open(urdf_file, 'r') as infp:
-        robot_desc = infp.read()
+    desk_urdf = Command([PathJoinSubstitution([FindExecutable(name='xacro')])," ",PathJoinSubstitution([FindPackageShare(package_name), "models", "desk.urdf.xacro"])])
 
     # Retrieve the RViz config file path
-    rviz_config_file = os.path.join(get_package_share_directory('ros2_ur5_interface'), 'rviz', 'ur5.rviz')
+    rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz', 'ur5.rviz')
 
     # Robot state publisher node
-    robot_state_publisher_node = Node(
+    desk_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         output='screen',
         namespace='desk',
         name='robot_state_publisher',
-        parameters=[{'robot_description': robot_desc}]
+        parameters=[{'robot_description': desk_urdf}]
     )
 
     # Fixed transform broadcaster
@@ -37,7 +38,7 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         output='screen',
-        arguments=['0.5', '0.34', '1.79', '0', '3.1415', '0', 'link', 'world']
+        arguments=['0.5', '0.34', '1.79', '0', '3.1415', '0', 'desk', 'world']
     )
 
     # Include the UR control node
@@ -71,7 +72,7 @@ def generate_launch_description():
     # Return the LaunchDescription
     return LaunchDescription([
         declare_ip_arg,
-        robot_state_publisher_node,
+        desk_state_publisher_node,
         fixed_map_broadcast,
         base_launch,
         pendant_play_rviz2,

@@ -10,29 +10,28 @@ from ament_index_python.packages import get_package_share_directory
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import AppendEnvironmentVariable, ExecuteProcess, TimerAction, OpaqueFunction
 
+package_name = 'ros2_ur5_interface'
 
-def generate_urdf_and_sdf(context, *args, **kwargs):
-    package_name = 'ros2_ur5_interface'
+def spawn_block(context, *args, **kwargs):
+    block_number = "1"
+    block_type = "X1-Y1-Z2"
     # Paths
-    xacro_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/model.urdf.xacro'
-    )
-    urdf_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/model.urdf'
-    )
-    sdf_file = os.path.join(
-        get_package_share_directory(package_name), 'models', 'blocks/model.sdf'
-    )
+    xacro_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf.xacro')
+    urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf')
+    sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.sdf')
 
     # Generate URDF from Xacro
     try:
         xacro_command = [
             FindExecutable(name="xacro").perform(context),
-            xacro_file
+            xacro_file,
+            f"block_name:={block_number}",
+            f"block_type:={block_type}",
         ]
         urdf_output = subprocess.check_output(xacro_command, text=True)
         with open(urdf_file, 'w') as urdf_fp:
             urdf_fp.write(urdf_output)
+
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error generating URDF: {e}")
 
@@ -45,18 +44,62 @@ def generate_urdf_and_sdf(context, *args, **kwargs):
             urdf_file,
         ]
         sdf_output = subprocess.check_output(sdf_command, text=True)
+        # Modify SDF to include the IMU sensor
+        sdf_lines = sdf_output.splitlines()
+        sensor_block = f"""
+        <plugin
+            filename="ignition-gazebo-pose-publisher-system"
+            name="ignition::gazebo::systems::PosePublisher">
+            <publish_model_pose>true</publish_model_pose>
+            <publish_nested_model_pose>true</publish_nested_model_pose>
+            <use_pose_vector_msg>true</use_pose_vector_msg>
+        </plugin>
+        """
+        # Append the sensor to the appropriate location
+        insert_index = next(
+            (i for i, line in enumerate(sdf_lines) if "</model>" in line), len(sdf_lines) - 1
+        )
+        sdf_lines.insert(insert_index, sensor_block)
+        modified_sdf_output = "\n".join(sdf_lines)
         with open(sdf_file, 'w') as sdf_fp:
-            sdf_fp.write(sdf_output)
+            sdf_fp.write(modified_sdf_output)
+
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Error converting URDF to SDF: {e}")
 
     print(f"Successfully generated URDF at {urdf_file}")
     print(f"Successfully generated SDF at {sdf_file}")
 
+    instances_cmds = []
+    # Block robot state publisher node
+    block_robot_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace='block',
+        name='robot_state_publisher',
+        parameters=[{'robot_description': urdf_output}]
+    )
+    instances_cmds.append(block_robot_state_publisher_node)
+
+    spawn_block =  Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', "block"+block_number,
+            '-file', sdf_file,
+            '-x', '0.50',
+            '-y', '0.34',
+            '-z', '0.90',
+        ],
+        output='screen',
+    )
+    instances_cmds.append(spawn_block)
+
+    return instances_cmds
+
 
 def generate_launch_description():
-    package_name = 'ros2_ur5_interface'
-
     declared_arguments = []
 
     declared_arguments.append(
@@ -71,20 +114,11 @@ def generate_launch_description():
     ur_type = LaunchConfiguration("ur_type")
 
     world_file = os.path.join(get_package_share_directory(package_name),'worlds','empty.world')
-
-    # Retrieve the URDF file for the desk
-    urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'desk.urdf')
-    with open(urdf_file, 'r') as infp:
-        desk_robot_desc = infp.read()
-
-    # Retrieve the SDF file path for the block
-    block_sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/model.sdf')
-    block_urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'blocks/model.urdf')
-    with open(block_urdf_file, 'r') as infp:
-        block_robot_desc = infp.read()
     
     # Retrieve the RViz config file path
     rviz_config_file = os.path.join(get_package_share_directory(package_name), 'rviz', 'ur5.rviz')
+
+    camera_sdf = os.path.join(get_package_share_directory(package_name), 'models', 'camera.sdf')
 
     robot_description_content = Command(
         [
@@ -123,21 +157,11 @@ def generate_launch_description():
     )
 
     # Fixed transform broadcaster
-    fixed_map_broadcast = Node(
+    fixed_tf_broadcast = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         output='screen',
-        arguments=['0.5', '0.34', '1.79', '0', '3.1415', '0', 'link', 'world']
-    )
-
-    # Desk robot state publisher node
-    desk_robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        namespace='desk',
-        name='robot_state_publisher',
-        parameters=[{'robot_description': desk_robot_desc}]
+        arguments=['0', '0', '0', '0', '0', '0', 'desk', 'default']
     )
 
     # UR robot state publisher node
@@ -147,16 +171,6 @@ def generate_launch_description():
         output='screen',
         name='robot_state_publisher',
         parameters=[{'robot_description': robot_description_content}]
-    )
-
-    # Block robot state publisher node
-    block_robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        namespace='block',
-        name='robot_state_publisher',
-        parameters=[{'robot_description': block_robot_desc}]
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -177,44 +191,28 @@ def generate_launch_description():
         #                              -r -s -v4
     )
     
-    spawn_desk =  Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-name', "desk",
-            '-file', [FindPackageShare(package_name), '/models/desk.sdf'],
-            '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.0',
-        ],
-        output='screen',
-    )
-
     spawn_ur5 = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
             '-name', ur_type,
             '-string', robot_description_content,
-            '-x', '0.50',
-            '-y', '0.34',
-            '-z', '1.79',
-            '-R', '0.00',
-            '-P', '3.1415',
-            '-Y', '0.00',
         ],
         output='screen',
     )
 
-    spawn_block =  Node(
+    spawn_camera = Node(
         package='ros_gz_sim',
         executable='create',
         arguments=[
-            '-name', "block",
-            '-file', block_sdf_file,
-            '-x', '0.50',
-            '-y', '0.34',
-            '-z', '0.9',
+            '-name', 'camera',
+            '-file', camera_sdf,
+            '-x', '-0.5',
+            '-y', '0.5',
+            '-z', '1.2',
+            '-R', '0.0',
+            '-P', '0.4',
+            '-Y', '-0.06',
         ],
         output='screen',
     )
@@ -262,18 +260,15 @@ def generate_launch_description():
     # Return the LaunchDescription
     return LaunchDescription([
         *declared_arguments,
-        OpaqueFunction(function=generate_urdf_and_sdf),
         set_env_vars,
-        fixed_map_broadcast,
-        desk_robot_state_publisher_node,
+        fixed_tf_broadcast,
         ur_robot_state_publisher_node,
-        block_robot_state_publisher_node,
+        OpaqueFunction(function=spawn_block),
         joint_state_broadcaster_spawner,
         initial_joint_controller_spawner,
         gazebo_launch,
-        spawn_desk,
         spawn_ur5,
-        spawn_block,
+        spawn_camera,
         gazebo_ros_bridge,
         gazebo_ros_image_bridge,
         rviz2,
