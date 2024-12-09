@@ -84,6 +84,8 @@ This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_u
 
 <img src="https://gyazo.com/ca4a65bce9e2ac0e5217edfc423d5fa9/raw" alt="UR5 Simulation" width="800">
 
+The user password is "ubuntu".
+
 ---
 
 ### 3. Run ROS 2 Nodes
