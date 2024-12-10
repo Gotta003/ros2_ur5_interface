@@ -25,6 +25,7 @@ ament_target_dependencies(publish_trajectory_node
   sensor_msgs
   control_msgs
   rclcpp_action
+  std_srvs
 )
 
 ament_target_dependencies(gripper_service
