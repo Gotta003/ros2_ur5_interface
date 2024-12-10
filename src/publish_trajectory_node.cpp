@@ -110,7 +110,7 @@ private:
         traj2 = generate_trajectory_segment(
             {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0},
             {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0},
-            3);
+            10);
         trajectories_.push_back(traj2);
 
         // Add additional trajectories as needed
