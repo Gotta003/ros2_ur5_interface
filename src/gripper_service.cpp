@@ -86,21 +86,6 @@ private:
         goal_msg.trajectory = traj_msg;
         goal_msg.goal_time_tolerance = rclcpp::Duration::from_seconds(0.5);
 
-        // print complete msg to std output
-        // std::cout
-         for (int i = 0; i < traj_msg.points.size(); i++)
-         {
-             std::cout << "Point " << i << ": ";
-               for (int j = 0; j < traj_msg.points[i].positions.size(); j++)
-               {
-                  std::cout << traj_msg.points[i].positions[j] << " ";
-               }
-               // time from start
-               std::cout << traj_msg.points[i].time_from_start.sec << " " << traj_msg.points[i].time_from_start.nanosec << std::endl;
-               std::cout << std::endl;
-         }
-
-
         RCLCPP_INFO(this->get_logger(), "Sending gripper goal.");
 
         auto send_goal_options = rclcpp_action::Client<control_msgs::action::FollowJointTrajectory>::SendGoalOptions();

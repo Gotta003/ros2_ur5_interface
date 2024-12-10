@@ -42,7 +42,7 @@
       <origin xyz="0 -0.028 0.09" rpy=" 0 0 0" />
       <parent link="${prefix}soft_robotics_gripper_base_link" />
       <child link="${prefix}soft_robotics_left_finger_link1" />
-      <limit effort="1" velocity="1" lower="-0.30" upper="0.30" />
+      <limit effort="1" velocity="1" lower="-0.35" upper="0.35" />
       <axis xyz="1 0 0"/>
     </joint>
 
@@ -71,7 +71,7 @@
       <origin xyz="0 0.028 0.09" rpy=" 0 0 ${-pi}" />
       <parent link="${prefix}soft_robotics_gripper_base_link" />
       <child link="${prefix}soft_robotics_right_finger_link1" />
-      <limit effort="1" velocity="1" lower="-0.30" upper="0.30" />
+      <limit effort="1" velocity="1" lower="-0.35" upper="0.35" />
       <axis xyz="1 0 0"/>
     </joint>
 
