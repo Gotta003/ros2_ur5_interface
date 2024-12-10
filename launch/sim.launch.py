@@ -92,7 +92,7 @@ def spawn_block(context, *args, **kwargs):
             '-file', sdf_file,
             '-x', '0.405',
             '-y', '0.58',
-            '-z', '0.90',
+            '-z', '0.88',
         ],
         output='screen',
     )
@@ -166,6 +166,16 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description_content}]
     )
 
+    # Desk robot state publisher node
+    desk_state_publisher_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        namespace='desk',
+        name='robot_state_publisher',
+        parameters=[{'robot_description': desk_urdf}]
+    )
+
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -189,27 +199,7 @@ def generate_launch_description():
         launch_arguments={'gz_args': ['-r -s ', world_file ], 'on_exit_shutdown': 'true'}.items()
         #                              -r -s -v4
     )
-
-    spawn_desk = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-name', "desk",
-            '-string', desk_urdf,
-        ],
-        output='screen',
-    )
     
-    spawn_ur5 = Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-name', ur_type,
-            '-string', robot_description_content,
-        ],
-        output='screen',
-    )
-
     spawn_camera = Node(
         package='ros_gz_sim',
         executable='create',
@@ -223,6 +213,32 @@ def generate_launch_description():
             '-P', '0.4',
             '-Y', '-0.06',
         ],
+        output='screen',
+    )
+
+    spawn_ur5 = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', ur_type,
+            '-string', robot_description_content,
+        ],
+        output='screen',
+    )
+
+    spawn_desk = Node(
+        package='ros_gz_sim',
+        executable='create',
+        arguments=[
+            '-name', "desk",
+            '-string', desk_urdf,
+        ],
+        output='screen',
+    )
+
+    activate_gripper = Node(
+        package='ros2_ur5_interface',
+        executable='gripper_service',
         output='screen',
     )
 
@@ -271,15 +287,17 @@ def generate_launch_description():
         *declared_arguments,
         set_env_vars,
         fixed_tf_broadcast,
+        desk_state_publisher_node,
         ur_robot_state_publisher_node,
         OpaqueFunction(function=spawn_block),
         joint_state_broadcaster_spawner,
         joint_controller_spawner,
         gripper_controller_spawner,
         gazebo_launch,
-        spawn_desk,
-        spawn_ur5,
         spawn_camera,
+        spawn_ur5,
+        spawn_desk,
+        activate_gripper,
         gazebo_ros_bridge,
         gazebo_ros_image_bridge,
         rviz2,

@@ -5,7 +5,6 @@
   <!-- import main macro -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
   <xacro:include filename="soft_robotics_gripper.xacro"/>
-  <xacro:include filename="$(find ros2_ur5_interface)/models/desk.urdf.xacro" />
 
   <xacro:include filename="$(find ros2_ur5_interface)/models/ur_gz.ros2_control.xacro" />
 
@@ -25,6 +24,14 @@
   <xacro:arg name="safety_k_position" default="20"/>
 
   <xacro:arg name="simulation_controllers" default="" />
+
+  <link name="desk">
+    <collision>
+      <geometry>
+        <box size="1.0 1.0 0.0001"/>
+      </geometry>
+    </collision>
+  </link>
 
   <!-- arm -->
   <xacro:ur_robot
@@ -51,8 +58,6 @@
      <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the desk -->
    </xacro:soft_robotics_gripper>
 
-  <gazebo reference="desk">
-  </gazebo>
   <gazebo>
     <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
       <parameters>$(arg simulation_controllers)</parameters>
