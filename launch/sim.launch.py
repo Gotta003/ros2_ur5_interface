@@ -157,6 +157,14 @@ def generate_launch_description():
         arguments=['0', '0', '0', '0', '0', '0', 'desk', 'default']
     )
 
+    # Fixed transform broadcaster for the camera
+    fixed_camera_tf_broadcast = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        output='screen',
+        arguments=['-0.5', '0.5', '1.2', '0', '0.4', '-0.06', 'desk', 'camera_rgb_frame']
+    )
+
     # UR robot state publisher node
     ur_robot_state_publisher_node = Node(
         package='robot_state_publisher',
@@ -287,6 +295,7 @@ def generate_launch_description():
         *declared_arguments,
         set_env_vars,
         fixed_tf_broadcast,
+        fixed_camera_tf_broadcast,
         desk_state_publisher_node,
         ur_robot_state_publisher_node,
         OpaqueFunction(function=spawn_block),

@@ -20,7 +20,7 @@
 - ros_topic_name: "camera/image_raw/points"
   gz_topic_name: "camera/image_raw/points"
   ros_type_name: "sensor_msgs/msg/PointCloud2"
-  gz_type_name: "gz.msgs.PointCloud2"
+  gz_type_name: "gz.msgs.PointCloudPacked"
   direction: GZ_TO_ROS
 
 - ros_topic_name: "/tf"
