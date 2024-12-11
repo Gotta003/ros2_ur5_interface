@@ -19,7 +19,7 @@
 			</visual>
 
 			<pose>0 0 0 0 0 0</pose>
-			<sensor name="camera" type="camera">
+			<sensor name="camera" type="rgbd_camera">
 			<always_on>true</always_on>
 			<visualize>true</visualize>
 			<update_rate>10</update_rate>

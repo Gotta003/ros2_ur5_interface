@@ -262,7 +262,7 @@ def generate_launch_description():
     gazebo_ros_image_bridge = Node(
         package='ros_gz_image',
         executable='image_bridge',
-        arguments=['/camera/image_raw'],
+        arguments=['/camera/image_raw/image'],
         output='screen',
     )
 
