@@ -162,7 +162,7 @@ def generate_launch_description():
         package='tf2_ros',
         executable='static_transform_publisher',
         output='screen',
-        arguments=['-0.5', '0.5', '1.2', '0', '0.4', '-0.06', 'desk', 'camera_rgb_frame']
+        arguments=['-0.5', '0.5', '1.2', '-0.06', '0.4', '0.0', 'desk', 'camera_rgb_frame']
     )
 
     # UR robot state publisher node
