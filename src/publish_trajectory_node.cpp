@@ -18,6 +18,8 @@ public:
 
     TrajectoryActionClient() : Node("trajectory_action_client")
     {
+        node_executed_ = false;
+
         // Define joint names
         joint_names_ = {"shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint", "wrist_1_joint", "wrist_2_joint", "wrist_3_joint"};
 
@@ -46,23 +48,6 @@ public:
         }
 
         time_between_points_ = 0.5; // Time between points in seconds
-
-        // Call the gripper service based on the trajectory index
-        RCLCPP_INFO(this->get_logger(), "Opening the gripper");
-        auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
-        open_gripper_client_->async_send_request(request);
-        std::this_thread::sleep_for(1s);
-        RCLCPP_INFO(this->get_logger(), "Gripper opened");
-
-        // Prepare the sequence of trajectories
-        RCLCPP_INFO(this->get_logger(), "Preparing trajectories");
-        prepare_trajectories();
-        RCLCPP_INFO(this->get_logger(), "Trajectories prepared");
-
-        // Start executing the first trajectory
-        current_trajectory_index_ = 0;
-        RCLCPP_INFO(this->get_logger(), "Starting trajectory execution");
-        send_next_trajectory();
     }
 
 private:
@@ -75,13 +60,34 @@ private:
     size_t current_trajectory_index_;
     std::vector<std::string> joint_names_;
     std::vector<double> start_config_;
+    bool node_executed_;
 
 
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
     {
-        if (msg->position.size() > 7) // Ensure valid indices
+        if (msg->position.size() > 5 && !node_executed_) // Ensure valid indices
         {
+            RCLCPP_INFO(this->get_logger(), "Executing node");
+            node_executed_ = true;
+
             start_config_ = {msg->position[0], msg->position[1], msg->position[2], msg->position[3], msg->position[4], msg->position[6]};
+
+            // Call the gripper service based on the trajectory index
+            RCLCPP_INFO(this->get_logger(), "Opening the gripper");
+            auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
+            open_gripper_client_->async_send_request(request);
+            std::this_thread::sleep_for(1s);
+            RCLCPP_INFO(this->get_logger(), "Gripper opened");
+
+            // Prepare the sequence of trajectories
+            RCLCPP_INFO(this->get_logger(), "Preparing trajectories");
+            prepare_trajectories();
+            RCLCPP_INFO(this->get_logger(), "Trajectories prepared");
+
+            // Start executing the first trajectory
+            current_trajectory_index_ = 0;
+            RCLCPP_INFO(this->get_logger(), "Starting trajectory execution");
+            send_next_trajectory();
         }
     }
 
@@ -117,13 +123,6 @@ private:
 
     void prepare_trajectories()
     {
-        // Wait until the start config is received
-        while (start_config_.empty())
-        {
-            RCLCPP_INFO(this->get_logger(), "Waiting for start config");
-            std::this_thread::sleep_for(1s);
-        }
-
         RCLCPP_INFO(this->get_logger(), "start_config_ %f %f %f %f %f %f", start_config_[0], start_config_[1], start_config_[2], start_config_[3], start_config_[4], start_config_[5]);
 
         // Define the trajectories
