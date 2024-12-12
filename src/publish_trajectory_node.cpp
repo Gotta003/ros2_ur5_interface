@@ -65,12 +65,34 @@ private:
 
     void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
     {
+        // check if nan
+        for (size_t i = 0; i < msg->position.size(); i++)
+        {
+            if (std::isnan(msg->position[i]))
+            {
+                RCLCPP_WARN(this->get_logger(), "Joint state message contains NaN values");
+                return;
+            }
+        }
         if (msg->position.size() > 5 && !node_executed_) // Ensure valid indices
         {
             RCLCPP_INFO(this->get_logger(), "Executing node");
             node_executed_ = true;
 
-            start_config_ = {msg->position[0], msg->position[1], msg->position[2], msg->position[3], msg->position[4], msg->position[6]};
+            // cycle through the positions in msg and find the corresponding joint names, then store the values in start_config_ with the same order as joint_names_
+            for (size_t i = 0; i < joint_names_.size(); i++)
+            {
+                for (size_t j = 0; j < msg->name.size(); j++)
+                {
+                    if (msg->name[j] == joint_names_[i])
+                    {
+                        start_config_.push_back(msg->position[j]);
+                        break;
+                    }
+                }
+            }
+
+            RCLCPP_INFO(this->get_logger(), "Start config: %f %f %f %f %f %f", start_config_[0], start_config_[1], start_config_[2], start_config_[3], start_config_[4], start_config_[5]);
 
             // Call the gripper service based on the trajectory index
             RCLCPP_INFO(this->get_logger(), "Opening the gripper");
@@ -100,7 +122,7 @@ private:
         traj_msg.joint_names = joint_names_;
 
         // Total interpolation time (N points * time_between_points_)
-        double total_time = num_points * time_between_points_;
+        double total_time = (num_points * time_between_points_) == 0 ? 1 : num_points * time_between_points_;
 
         for (int i = 0; i <= num_points; i++)
         {
@@ -112,6 +134,7 @@ private:
                 double interpolated_position = start_config[j] + (t / total_time) * (end_config[j] - start_config[j]);
                 point.positions.push_back(interpolated_position);
             }
+            RCLCPP_INFO(this->get_logger(), "Trajectory point %d: %f %f %f %f %f %f", i, point.positions[0], point.positions[1], point.positions[2], point.positions[3], point.positions[4], point.positions[5]);
 
             point.time_from_start = rclcpp::Duration::from_seconds(t);
             traj_msg.points.push_back(point);
@@ -123,8 +146,6 @@ private:
 
     void prepare_trajectories()
     {
-        RCLCPP_INFO(this->get_logger(), "start_config_ %f %f %f %f %f %f", start_config_[0], start_config_[1], start_config_[2], start_config_[3], start_config_[4], start_config_[5]);
-
         // Define the trajectories
         // Trajectory 1
         trajectory_msgs::msg::JointTrajectory traj1;
