@@ -3,6 +3,7 @@
 #include <control_msgs/msg/joint_tolerance.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 #include <std_srvs/srv/trigger.hpp>
 #include <chrono>
 #include <vector>
@@ -22,6 +23,10 @@ public:
 
         action_client_ = rclcpp_action::create_client<FollowJointTrajectory>(
             this, "/scaled_joint_trajectory_controller/follow_joint_trajectory");
+
+        // Subscribe to the joint states topic
+        subscription_ = this->create_subscription<sensor_msgs::msg::JointState>(
+            "joint_states", 10, std::bind(&TrajectoryActionClient::joint_state_callback, this, std::placeholders::_1));
 
         open_gripper_client_ = this->create_client<std_srvs::srv::Trigger>("open_gripper");
         close_gripper_client_ = this->create_client<std_srvs::srv::Trigger>("close_gripper");
@@ -43,26 +48,42 @@ public:
         time_between_points_ = 0.5; // Time between points in seconds
 
         // Call the gripper service based on the trajectory index
+        RCLCPP_INFO(this->get_logger(), "Opening the gripper");
         auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
-        auto future = open_gripper_client_->async_send_request(request);
+        open_gripper_client_->async_send_request(request);
         std::this_thread::sleep_for(1s);
+        RCLCPP_INFO(this->get_logger(), "Gripper opened");
 
         // Prepare the sequence of trajectories
+        RCLCPP_INFO(this->get_logger(), "Preparing trajectories");
         prepare_trajectories();
+        RCLCPP_INFO(this->get_logger(), "Trajectories prepared");
 
         // Start executing the first trajectory
         current_trajectory_index_ = 0;
+        RCLCPP_INFO(this->get_logger(), "Starting trajectory execution");
         send_next_trajectory();
     }
 
 private:
     rclcpp_action::Client<FollowJointTrajectory>::SharedPtr action_client_;
+    rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr subscription_;
     rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr open_gripper_client_;
     rclcpp::Client<std_srvs::srv::Trigger>::SharedPtr close_gripper_client_;
     double time_between_points_;
     std::vector<trajectory_msgs::msg::JointTrajectory> trajectories_;
     size_t current_trajectory_index_;
     std::vector<std::string> joint_names_;
+    std::vector<double> start_config_;
+
+
+    void joint_state_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
+    {
+        if (msg->position.size() > 7) // Ensure valid indices
+        {
+            start_config_ = {msg->position[0], msg->position[1], msg->position[2], msg->position[3], msg->position[4], msg->position[6]};
+        }
+    }
 
     trajectory_msgs::msg::JointTrajectory generate_trajectory_segment(
         const std::vector<double>& start_config,
@@ -96,11 +117,20 @@ private:
 
     void prepare_trajectories()
     {
+        // Wait until the start config is received
+        while (start_config_.empty())
+        {
+            RCLCPP_INFO(this->get_logger(), "Waiting for start config");
+            std::this_thread::sleep_for(1s);
+        }
+
+        RCLCPP_INFO(this->get_logger(), "start_config_ %f %f %f %f %f %f", start_config_[0], start_config_[1], start_config_[2], start_config_[3], start_config_[4], start_config_[5]);
+
         // Define the trajectories
         // Trajectory 1
         trajectory_msgs::msg::JointTrajectory traj1;
         traj1 = generate_trajectory_segment(
-            {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0},
+            start_config_,
             {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0},
             10);
         trajectories_.push_back(traj1);
@@ -109,7 +139,7 @@ private:
         trajectory_msgs::msg::JointTrajectory traj2;
         traj2 = generate_trajectory_segment(
             {-1.41, -0.96, -1.8, -1.96, -1.60, 0.0},
-            {-1.60, -1.72, -2.20, -0.81, 1.60, 0.0},
+            start_config_,
             10);
         trajectories_.push_back(traj2);
 

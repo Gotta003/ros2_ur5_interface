@@ -53,6 +53,12 @@ def generate_launch_description():
         }.items(),
     )
 
+    activate_gripper = Node(
+        package='ros2_ur5_interface',
+        executable='gripper_service',
+        output='screen',
+    )
+
     # RViz2 node +
     # call service /dashboard_client/play to start the simulation
     pendant_play_rviz2 = TimerAction(period=4.0, actions=[
@@ -75,5 +81,6 @@ def generate_launch_description():
         desk_state_publisher_node,
         fixed_map_broadcast,
         base_launch,
+        activate_gripper,
         pendant_play_rviz2,
     ])
