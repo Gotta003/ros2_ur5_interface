@@ -150,37 +150,32 @@ ros2 run ros2_ur5_interface publish_trajectory_node
 <br><br>
 
 ## Connect to the real UR5 robot
-<img align="right" width="600" src="https://i.gyazo.com/thumb/3024/243c42358c019f3e0c9f0345ed28e31b-heic.jpg">
-
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-
 Check the robot's IP address by following these steps:
 1. Press the burger menu button on the top right of the robot's teach pendant.
 2. Select "Settings".
 3. Navigate to "System" > "Network".
 4. Check the IP address.
-   
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
-<br><br>
+
+<img style="display: block; margin-left: auto; margin-right: auto;" width="600" src="https://i.gyazo.com/thumb/3024/243c42358c019f3e0c9f0345ed28e31b-heic.jpg">
+
 <br><br>
    
 Check under the installation tab if in the URCaps > External Control your IP address is the same as the one you are using to connect to the robot.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" width="800" src="https://i.gyazo.com/954c9c5d830a27f247d87145b050b057.png">
+<img style="display: block; margin-left: auto; margin-right: auto;" width="700" src="https://i.gyazo.com/954c9c5d830a27f247d87145b050b057.png">
+
+<br><br>
 
 To connect to the real UR5 robot you need to specify the IP address of the robot when launching the interface.launch.py file. You can do this by adding the following argument to the launch command:
 ```bash
 ros2 launch ros2_ur5_interface interface.launch.py robot_ip:=<robot_ip>
 ```
+
+
+<p style="display: block; margin-left: auto; margin-right: auto;">
+<img src="https://gyazo.com/c3246a12c72fc2346ebea0e40b0ef24a/raw" width="45%" style="display: inline-block; margin-right: 5px;" /> 
+<img src="https://gyazo.com/cbfc0be2e52b639487d035dace500bf1/raw" width="45%" style="display: inline-block; margin-left: 5px;" /> 
+</p>
 
 ---
 
