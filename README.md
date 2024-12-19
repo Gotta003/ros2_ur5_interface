@@ -139,6 +139,14 @@ This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_u
   ros2 launch ros2_ur5_interface sim.launch.py
   ```
 
+### 2. Run ROS 2 Example Node
+Run the trajectory publication node to visualize the UR5 robot moving:
+```bash
+ros2 run ros2_ur5_interface publish_trajectory_node
+```
+
+<img src="https://gyazo.com/e25c7f6d13dd8dd77d8a149f36bf9e17/raw" alt="UR5 Trajectory Simulation" width="800">
+
 
 ---
 
