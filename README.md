@@ -171,6 +171,7 @@ To connect to the real UR5 robot you need to specify the IP address of the robot
 ros2 launch ros2_ur5_interface interface.launch.py robot_ip:=<robot_ip>
 ```
 
+<br><br>
 
 <p style="display: block; margin-left: auto; margin-right: auto;">
 <img src="https://gyazo.com/c3246a12c72fc2346ebea0e40b0ef24a/raw" width="45%" style="display: inline-block; margin-right: 5px;" /> 
