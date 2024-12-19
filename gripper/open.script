@@ -89,9 +89,9 @@ def gripper_control():
   set_runstate_standard_digital_output_to_value(0, 1)
   # Sensor offset 2.963V
   # Default Grip strength 5.0
-  grip_volt = 3.1#3.653
+  grip_volt = 2.6#3.653
   # Default Release amount -2.5
-  release_volt = 3.1#2.818
+  release_volt = 2.6#2.818
   coDrive_stop()
   # end: URCap Installation Node
   $ 1 "Programma Robot"

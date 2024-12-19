@@ -98,7 +98,7 @@ private:
             RCLCPP_INFO(this->get_logger(), "Opening the gripper");
             auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
             open_gripper_client_->async_send_request(request);
-            std::this_thread::sleep_for(1s);
+            std::this_thread::sleep_for(2s);
             RCLCPP_INFO(this->get_logger(), "Gripper opened");
 
             // Prepare the sequence of trajectories
@@ -221,6 +221,7 @@ private:
         // Call the gripper service based on the trajectory index
         auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
         auto future = close_gripper_client_->async_send_request(request);
+        std::this_thread::sleep_for(2s);
 
         if (future.wait_for(5s) == std::future_status::ready)
         {

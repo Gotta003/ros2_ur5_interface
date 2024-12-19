@@ -57,6 +57,7 @@ def generate_launch_description():
     activate_gripper = Node(
         package='ros2_ur5_interface',
         executable='gripper_service',
+        arguments=[LaunchConfiguration("robot_ip")],
         output='screen',
     )
 

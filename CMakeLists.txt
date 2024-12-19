@@ -49,6 +49,7 @@ install(
   launch
   config
   params
+  gripper
   worlds
   models
   rviz
