@@ -8,6 +8,7 @@ endif()
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -30,6 +31,7 @@ ament_target_dependencies(publish_trajectory_node
 
 ament_target_dependencies(gripper_service
   rclcpp
+  ament_index_cpp
   trajectory_msgs
   sensor_msgs
   control_msgs
