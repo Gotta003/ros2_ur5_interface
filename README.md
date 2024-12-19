@@ -19,21 +19,35 @@ The resources in this repository were developed for the **"Fundamentals of Robot
 ```plaintext
 .
 ├── launch/
-│   ├── sim.launch.py                     # Launch file to interact with simulated and real UR5 robot
+│   ├── sim.launch.py                     # Launch file to simulate the UR5 robot in gazebo
+│   ├── interface.launch.py               # Launch file to interact with simulated and real UR5 robot
 ├── src/
+│   ├── gripper_service.cpp               # Node that provides a service to open/close the gripper
 │   ├── publish_trajectory_node.cpp       # Example node for trajectory publication
 ├── config/
 │   ├── ur_controllers.yaml               # Configuration file for the UR5 controllers
 ├── params/
-│   ├── ur5_bridge.yaml                   # Parameters file for the Gazbo bridge
+│   ├── ur5_bridge.yaml                   # Parameters file for the Gazebo bridge
+├── gripper/
+│   ├── open.script                       # Script to open the soft robotics gripper
+│   ├── close.script                      # Script to close the soft robotics gripper
+│   ├── neutral_from_open.script          # Script to move the gripper to a neutral position from the open position
+│   ├── neutral_from_closed.script        # Script to move the gripper to a neutral position from the closed position
 ├── models/
-│   ├── desk.urdf                         # URDF file that defines the desk where the UR5 is mounted
-│   ├── desk.sdf                          # SDF file that defines the desk where the UR5 is mounted
+│   ├── desk.urdf.xacro                   # URDF file that defines the desk where the UR5 is mounted
 │   ├── desk.config                       # Config file auxiliary to the SDF file
 │   ├── ur_gz.ros2_control.xacro          # URDF file that defines the UR5 robot with ROS 2 control
 │   ├── ur_gz.urdf.xacro                  # URDF file that defines the UR5 robot
+│   ├── soft_robotics_gripper.urdf.xacro  # URDF file that defines the soft robotics gripper
+│   ├── camera.sdf                        # SDF file that defines the RGBD camera
+│   ├── block.urdf.xacro                  # URDF file that defines a block
+│   ├── block.config                      # Config file auxiliary to the SDF file
 │   ├── meshes
 │   |   ├── desk.stl                      # STL file with the 3D mesh of the desk
+│   |   ├── base.stl                      # STL file with the 3D mesh of the base of the soft robotics gripper
+│   |   ├── link1.stl                     # STL file with the 3D mesh of the first link of the soft robotics gripper
+│   |   ├── link2.stl                     # STL file with the 3D mesh of the second link of the soft robotics gripper
+│   |   ├── X*-Y*-Z*.stl                  # STL files with the 3D mesh of the blocks
 ├── docker/
 │   ├── Dockerfile                        # Dockerfile for the ROS 2 UR5 interface docker image
 │   ├── entrypoint.sh                     # Entrypoint script used in the docker
