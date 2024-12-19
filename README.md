@@ -83,7 +83,7 @@ bash scripts/ur5.sh
 ```
 This starts the [pla10/ursim_e-series](https://hub.docker.com/r/pla10/ursim_e-series) Docker container for UR5 simulation. Access the simulator via your browser at [http://localhost:6080](http://localhost:6080).
 
-<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Simulation" width="800" src="images/docker_ur5.gif">
+<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Simulation" width="800" src="https://gyazo.com/7e2514442ef1753eb8b20e2b674056fc/raw">
 
 To prepare the robot to work with ROS2 you need to go to the program tab and add the URCaps > External Control.
 
@@ -96,7 +96,7 @@ bash scripts/ros2.sh
 ```
 This starts the [pla10/ros2_ur5_interface](https://hub.docker.com/r/pla10/ros2_ur5_interface) container. Access the environment via noVNC at [http://localhost:6081](http://localhost:6081).
 
-<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Simulation" width="800" src="images/docker_ros2.gif">
+<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Simulation" width="800" src="https://gyazo.com/ca4a65bce9e2ac0e5217edfc423d5fa9/raw">
 
 The user password is "ubuntu".
 
@@ -145,7 +145,7 @@ Run the trajectory publication node to visualize the UR5 robot moving:
 ros2 run ros2_ur5_interface publish_trajectory_node
 ```
 
-<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Trajectory Simulation" width="800" src="images/ur5_gz.gif">
+<img style="display: block; margin-left: auto; margin-right: auto;" alt="UR5 Trajectory Simulation" width="800" src="https://gyazo.com/e25c7f6d13dd8dd77d8a149f36bf9e17/raw">
 
 <br><br>
 
@@ -156,13 +156,13 @@ Check the robot's IP address by following these steps:
 3. Navigate to "System" > "Network".
 4. Check the IP address.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" width="600" src="images/ur5_pendant.png">
+<img style="display: block; margin-left: auto; margin-right: auto;" width="600" src="https://i.gyazo.com/thumb/3024/243c42358c019f3e0c9f0345ed28e31b-heic.jpg">
 
 <br><br>
    
 Check under the installation tab if in the URCaps > External Control your IP address is the same as the one you are using to connect to the robot.
 
-<img style="display: block; margin-left: auto; margin-right: auto;" width="700" src="images/addr_pendant.png">
+<img style="display: block; margin-left: auto; margin-right: auto;" width="700" src="https://i.gyazo.com/954c9c5d830a27f247d87145b050b057.png">
 
 <br><br>
 
