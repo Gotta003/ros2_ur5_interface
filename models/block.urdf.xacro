@@ -1,55 +1,71 @@
 <?xml version="1.0"?>
 <robot name="block" xmlns:xacro="http://ros.org/wiki/xacro">
 
+  <!-- Define arguments with default values -->
   <xacro:arg name="block_number" default="1" />
   <xacro:arg name="block_type" default="X1-Y1-Z2" />
-  <xacro:macro name="block" params="block_number block_type">
+  <xacro:arg name="color_input" default="0.4 0.4 0.9 1"/>
+  <xacro:arg name="px" default="0.0" />
+  <xacro:arg name="py" default="0.0" />
+  <xacro:arg name="pz" default="0.0" />
+  <xacro:arg name="ar" default="0.0" />
+  <xacro:arg name="ap" default="0.0" />
+  <xacro:arg name="ay" default="0.0" />
 
+  <!-- Macro definition with block_number, block_type, color_input, and other parameters -->
+  <xacro:macro name="block" params="block_number block_type color_input px py pz ar ap ay">
+  
     <!-- Parameters for reusability -->
     <xacro:property name="mesh_path" value="$(find ros2_ur5_interface)/models/meshes/${block_type}.stl" />
     <xacro:property name="mass" value="0.01" />
-    <xacro:property name="ixx" value="3.604e-6" />
-    <xacro:property name="iyy" value="3.604e-6" />
-    <xacro:property name="izz" value="1.602e-6" />
-    <xacro:property name="color" value="0.4 0.4 0.9 1" />
     
     <!-- Link Definition -->
     <link name="block${block_number}">
       <!-- Inertial Properties -->
       <inertial>
-        <origin xyz="0 0 0.0285" rpy="0 0 0"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="${mass}" />
         <inertia 
-          ixx="${ixx}" 
+          ixx="${px}" 
           ixy="0" 
           ixz="0" 
-          iyy="${iyy}" 
+          iyy="${py}" 
           iyz="0" 
-          izz="${izz}" />
+          izz="${pz}" />
       </inertial>
 
       <!-- Visual Properties -->
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="${px} ${py} ${pz}" rpy="${ar} ${ap} ${ay}" />
         <geometry>
           <mesh filename="file://${mesh_path}" scale="1 1 1" />
         </geometry>
         <material name="color">
-          <color rgba="${color}" />
+          <color rgba="${color_input}" />  <!-- Using color_input to set color -->
         </material>
       </visual>
 
       <!-- Collision Properties -->
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="${px} ${py} ${pz}" rpy="${ar} ${ap} ${ay}" />
         <geometry>
-          <!-- <box size="0.031 0.031 0.057" /> -->
           <mesh filename="file://${mesh_path}" scale="1 1 1" />
         </geometry>
       </collision>
     </link>
 
   </xacro:macro>
-  <xacro:block block_number="$(arg block_number)" block_type="$(arg block_type)" />
 
+  <!-- Instantiating the block macro with all parameters passed correctly -->
+  <xacro:block 
+    block_number="$(arg block_number)" 
+    block_type="$(arg block_type)" 
+    color_input="$(arg color_input)" 
+    px="$(arg px)" 
+    py="$(arg py)" 
+    pz="$(arg pz)" 
+    ar="$(arg ar)" 
+    ap="$(arg ap)" 
+    ay="$(arg ay)" />
 </robot>
+

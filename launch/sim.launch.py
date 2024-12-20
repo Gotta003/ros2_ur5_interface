@@ -1,4 +1,6 @@
 import os
+import random
+import math
 import subprocess
 from launch import LaunchDescription
 from launch_ros.actions import Node
@@ -12,92 +14,164 @@ from launch.actions import AppendEnvironmentVariable, ExecuteProcess, TimerActio
 
 package_name = 'ros2_ur5_interface'
 
+MIN_BLOCK = 1
+MAX_BLOCK = 10
+X_MIN=0.2
+X_MAX=0.5
+Y_MIN=0.2
+Y_MAX=0.7
+Z_TABLE=0.88
+PRECISION=3
+def random_pos() -> tuple:
+    precision=10*PRECISION
+    x_min=X_MIN*precision
+    x_max=X_MAX*precision
+    y_min=Y_MIN*precision
+    y_max=Y_MAX*precision
+    x=random.randrange(int(x_min), int(x_max))/precision
+    y=random.randrange(int(y_min), int(y_max))/precision
+    z=Z_TABLE
+    return(x,y,z)
+    
+def random_angle(precision: int = 3) -> float:
+    return random.randint(0,314000) / 100000
+    
 def spawn_block(context, *args, **kwargs):
-    block_number = "1"
+    while True:
+        u_input=input("Enter a positive number between {MIN_BLOCK} and {MAX_BLOCK}: ");
+        if u_input.isdigit() and int(u_input)>=MIN_BLOCK and int(u_input)<=MAX_BLOCK:
+            break
+        print("Invalid input. Please try again.")
+    block_number = int(u_input)
     block_types = ["X1-Y1-Z2", "X1-Y2-Z2", "X1-Y4-Z2", "X1-Y2-Z1", "X1-Y3-Z2-FILLET", "X2-Y2-Z2-FILLET", "X1-Y2-Z2-CHAMFER", "X1-Y3-Z2", "X2-Y2-Z2", "X1-Y2-Z2-TWINFILLET", "X1-Y4-Z1"]
-    block_type = block_types[0]
-    # Paths
-    xacro_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf.xacro')
-    urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf')
-    sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.sdf')
-
-    # Generate URDF from Xacro
-    try:
-        xacro_command = [
-            FindExecutable(name="xacro").perform(context),
-            xacro_file,
-            f"block_name:={block_number}",
-            f"block_type:={block_type}",
-        ]
-        urdf_output = subprocess.check_output(xacro_command, text=True)
-        with open(urdf_file, 'w') as urdf_fp:
-            urdf_fp.write(urdf_output)
-
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Error generating URDF: {e}")
-
-    # Convert URDF to SDF
-    try:
-        sdf_command = [
-            FindExecutable(name="gz").perform(context),
-            "sdf",
-            "-p",
-            urdf_file,
-        ]
-        sdf_output = subprocess.check_output(sdf_command, text=True)
-        # Modify SDF to include the IMU sensor
-        sdf_lines = sdf_output.splitlines()
-        sensor_block = f"""
-        <plugin
-            filename="ignition-gazebo-pose-publisher-system"
-            name="ignition::gazebo::systems::PosePublisher">
-            <publish_model_pose>true</publish_model_pose>
-            <publish_nested_model_pose>true</publish_nested_model_pose>
-            <use_pose_vector_msg>true</use_pose_vector_msg>
-            <update_frequency>100.0</update_frequency>
-        </plugin>
-        """
-        # Append the sensor to the appropriate location
-        insert_index = next(
-            (i for i, line in enumerate(sdf_lines) if "</model>" in line), len(sdf_lines) - 1
-        )
-        sdf_lines.insert(insert_index, sensor_block)
-        modified_sdf_output = "\n".join(sdf_lines)
-        with open(sdf_file, 'w') as sdf_fp:
-            sdf_fp.write(modified_sdf_output)
-
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Error converting URDF to SDF: {e}")
-
-    print(f"Successfully generated URDF at {urdf_file}")
-    print(f"Successfully generated SDF at {sdf_file}")
-
+    color_map = {
+        "red": "1 0 0 1",
+        "green": "0 1 0 1",
+        "blue": "0 0 1 1",
+        "yellow": "1 1 0 1",
+        "cyan": "0 1 1 1",
+        "magenta": "1 0 1 1",
+        "black": "0 0 0 1",
+        "white": "1 1 1 1",
+        "gray": "0.5 0.5 0.5 1",
+        "orange": "1 0.65 0 1",
+        "purple": "0.5 0 0.5 1",
+        "pink": "1 0.75 0.8 1",
+        "brown": "0.6 0.3 0.1 1",
+        "beige": "0.96 0.96 0.86 1",
+        "light_green": "0.6 1 0.6 1",
+        "light_blue": "0.6 0.8 1 1",
+        "light_gray": "0.8 0.8 0.8 1",
+        "light_yellow": "1 1 0.6 1",
+        "light_purple": "0.75 0.5 1 1",
+        "dark_red": "0.5 0 0 1",
+        "dark_blue": "0 0 0.5 1",
+        "dark_green": "0 0.5 0 1",
+        "dark_cyan": "0 0.5 0.5 1",
+        "dark_magenta": "0.5 0 0.5 1",
+        "dark_yellow": "0.5 0.5 0 1",
+        "dark_orange": "0.5 0.25 0 1",
+        "light_pink": "1 0.85 0.9 1",
+    }
     instances_cmds = []
-    # Block robot state publisher node
-    block_robot_state_publisher_node = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        namespace='block',
-        name='robot_state_publisher',
-        parameters=[{'robot_description': urdf_output}]
-    )
-    instances_cmds.append(block_robot_state_publisher_node)
+    count=0
+    while(count<block_number):
+        count+=1
+        n=random.randint(0, len(block_types)-1)
+        block_type = block_types[n]
+        col=random.choice(list(color_map.keys()))
+        choose_color=color_map[col]
+        position=random_pos()
+        orientation=[math.pi/2, math.pi/2, 0.0]
+        print(block_type)
+        print(choose_color)
+        print(position)
+        # Paths
+        xacro_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf.xacro')
+        urdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.urdf')
+        sdf_file = os.path.join(get_package_share_directory(package_name), 'models', 'block.sdf')
+        # Generate URDF from Xacro
+        try:
+            xacro_command = [
+                FindExecutable(name="xacro").perform(context),
+                xacro_file,
+                f"block_name:={count}",
+                f"block_type:={block_type}",
+                f"color_input:={choose_color}",
+                f"px:={position[0]}",
+                f"py:={position[1]}",
+                f"pz:={position[2]}",
+                f"ar:={orientation[0]}",
+                f"ap:={orientation[1]}",
+                f"ay:={orientation[2]}"
+            ]
+            urdf_output = subprocess.check_output(xacro_command, text=True)
+            with open(urdf_file, 'w') as urdf_fp:
+                urdf_fp.write(urdf_output)
 
-    spawn_block =  Node(
-        package='ros_gz_sim',
-        executable='create',
-        arguments=[
-            '-name', "block"+block_number,
-            '-file', sdf_file,
-            '-x', '0.405',
-            '-y', '0.58',
-            '-z', '0.88',
-        ],
-        output='screen',
-    )
-    instances_cmds.append(spawn_block)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Error generating URDF: {e}")
 
+        # Convert URDF to SDF
+        try:
+            sdf_command = [
+                FindExecutable(name="gz").perform(context),
+                "sdf",
+                "-p",
+                urdf_file,
+            ]
+            sdf_output = subprocess.check_output(sdf_command, text=True)
+            # Modify SDF to include the IMU sensor
+            sdf_lines = sdf_output.splitlines()
+            sensor_block = f"""
+            <plugin
+                filename="ignition-gazebo-pose-publisher-system"
+                name="ignition::gazebo::systems::PosePublisher">
+                <publish_model_pose>true</publish_model_pose>
+                <publish_nested_model_pose>true</publish_nested_model_pose>
+                <use_pose_vector_msg>true</use_pose_vector_msg>
+                <update_frequency>100.0</update_frequency>
+            </plugin>
+            """
+            # Append the sensor to the appropriate location
+            insert_index = next(
+                (i for i, line in enumerate(sdf_lines) if "</model>" in line), len(sdf_lines) - 1
+            )
+            sdf_lines.insert(insert_index, sensor_block)
+            modified_sdf_output = "\n".join(sdf_lines)
+            with open(sdf_file, 'w') as sdf_fp:
+                sdf_fp.write(modified_sdf_output)
+
+        except subprocess.CalledProcessError as e:
+                raise RuntimeError(f"Error converting URDF to SDF: {e}")
+
+        print(f"Successfully generated URDF at {urdf_file}")
+        print(f"Successfully generated SDF at {sdf_file}")
+
+        # Block robot state publisher node
+        block_robot_state_publisher_node = Node(
+            package='robot_state_publisher',
+            executable='robot_state_publisher',
+            output='screen',
+            namespace='block',
+            name='robot_state_publisher',
+            parameters=[{'robot_description': urdf_output}]
+        )
+        instances_cmds.append(block_robot_state_publisher_node)
+        
+        spawn_block =  Node(
+            package='ros_gz_sim',
+            executable='create',
+            arguments=[
+                '-name', "block"+str(count),
+                '-file', sdf_file,
+                '-x', str(position[0]),
+                '-y', str(position[1]),
+                '-z', str(position[2])
+            ],
+            output='screen',
+        )
+        instances_cmds.append(spawn_block)
     return instances_cmds
 
 
